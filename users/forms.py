@@ -53,10 +53,10 @@ class UserForm(forms.ModelForm):
                 raise forms.ValidationError(message="Invalid user account")
 
         else:
-            if data.get('first_name') and data.get('last_name'):
-                pass
-            else:
-                raise forms.ValidationError(message="blabla")
+            if (not data.get('first_name')) or (not data.get('last_name')):
+                raise forms.ValidationError(
+                    message="Veuillez entrer nom et prénom ou "
+                            "identifiants valides.")
 
 
 class ProfileForm(forms.ModelForm):

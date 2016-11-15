@@ -1,0 +1,12 @@
+{% extends "root.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load static %}
+
+{% block head %}
+{{ wizard.form.media }}
+{% endblock %}
+
+{% block content %}
+{{ first_name }} {{ last_name }}, merci pour votre demande.
+{% endblock %}

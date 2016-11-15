@@ -9,8 +9,9 @@ env.read_env(".env")
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env.bool('DJANGO_DEBUG', False)
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    'localhost', '127.0.0.1', '[::1]',
+    'annuaire-dev.herokuapp.com']
 
 # APPLICATION DEFINITION
 

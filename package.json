@@ -1,0 +1,21 @@
+{
+  "name": "annuaire",
+  "version": "0.1.0",
+  "description": "",
+  "scripts": {
+    "build:sass": "node-sass assets/sass/main.scss assets/dist/main.css",
+    "watch:sass": "node-sass -wr assets/sass/main.scss assets/dist/main.css"
+  },
+  "author": "Luc Rocher",
+  "dependencies": {
+    "bootstrap": "^4.0.0-alpha.5"
+  },
+  "devDependencies": {
+    "babel": "^6.5.2",
+    "babel-loader": "^6.2.7",
+    "css-loader": "^0.25.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "node-sass": "^3.11.3",
+    "style-loader": "^0.13.1",
+  }
+}

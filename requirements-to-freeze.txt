@@ -1,0 +1,13 @@
+django
+psycopg2
+
+django-allauth
+django-environ
+django-crispy-forms
+django-phonenumber-field
+django-formtools
+
+whitenoise
+raven
+
+gunicorn

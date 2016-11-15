@@ -20,8 +20,8 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password):
-        user = self.create_user(email, password=password,
-                                is_superuser=True)
+        user = self.create_user(email, password=password)
+        user.is_superuser = True
         user.is_admin = True
         user.save(using=self._db)
         return user
@@ -48,6 +48,12 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     @property
     def is_staff(self):
+        return self.is_admin
+
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
         return self.is_admin
 
     def get_short_name(self):

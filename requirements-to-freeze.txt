@@ -6,7 +6,10 @@ django-environ
 django-crispy-forms
 django-phonenumber-field
 django-formtools
+django-autocomplete-light
+django-allauth-bootstrap
 
+django-npm
 whitenoise
 raven
 

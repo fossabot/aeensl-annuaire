@@ -3,19 +3,27 @@
   "version": "0.1.0",
   "description": "",
   "scripts": {
+    "build:js": "browserify -t babelify assets/js/app.js -o assets/dist/app.js",
+    "watch:js": "watchify -t babelify assets/js/app.js -o assets/dist/app.js",
     "build:sass": "node-sass assets/sass/main.scss assets/dist/main.css",
-    "watch:sass": "node-sass -wr assets/sass/main.scss assets/dist/main.css"
+    "watch:sass": "node-sass -wr assets/sass/main.scss assets/dist/main.css",
+    "build:img": "cp -R node_modules/intl-tel-input/build/img assets/dist/img"
   },
   "author": "Luc Rocher",
   "dependencies": {
-    "bootstrap": "^4.0.0-alpha.5"
+    "bootstrap": "^4.0.0-alpha.5",
+    "intl-tel-input": "^9.2.4",
+    "places.js": "^1.4.7"
   },
   "devDependencies": {
     "babel": "^6.5.2",
     "babel-loader": "^6.2.7",
+    "babelify": "^7.3.0",
+    "browserify": "^13.1.1",
     "css-loader": "^0.25.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "node-sass": "^3.11.3",
     "style-loader": "^0.13.1",
+    "watchify": "^3.7.0"
   }
 }

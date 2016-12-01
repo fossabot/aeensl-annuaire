@@ -7,6 +7,7 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MinValueValidator
 
 import uuid
+from datetime import date
 
 
 class UserManager(BaseUserManager):
@@ -34,8 +35,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = 'auth_user'
 
     email = models.EmailField('Email', max_length=255, unique=True)
-    first_name = models.CharField('Prénom', max_length=30)
-    last_name = models.CharField('Nom', max_length=30)
 
     USERNAME_FIELD = 'email'
     objects = UserManager()
@@ -44,7 +43,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
 
     def __str__(self):
-        return "{p.first_name} {p.last_name}".format(p=self)
+        return str(self.email)
 
     @property
     def is_staff(self):
@@ -68,21 +67,65 @@ class Profile(models.Model):
         verbose_name = 'Profil'
         verbose_name_plural = 'Profils'
 
+    def __str__(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
     user = models.OneToOneField(
-        User, on_delete=models.PROTECT, verbose_name='Utilisateur')
+        User, on_delete=models.PROTECT,
+        related_name='profile', verbose_name='Utilisateur')
 
-    married_name = models.CharField(
-        max_length=100, blank=True, verbose_name="Nom de naissance")
+    # Demographics and address
+    # ------------------------
 
-    phone_number = PhoneNumberField(verbose_name="Numéro de téléphone")
-    address = models.TextField(verbose_name="Adresse postale")
+    first_name = models.CharField('Prénom', max_length=30)
+    last_name = models.CharField('Nom', max_length=30)
+
+    birth_name = models.CharField(
+        "Nom de naissance", max_length=100, blank=True)
+
+    phone_number = PhoneNumberField("Numéro de téléphone")
+
+    address_line_1 = models.CharField("Ligne 1", max_length=200)
+    address_line_2 = models.CharField("Ligne 2", max_length=200, blank=True)
+    postal_code = models.CharField("Code postal", max_length=10)
+    city = models.CharField("Commune", max_length=50, blank=False)
+    state_province = models.CharField(
+        "State/Province", max_length=40, blank=True)
+    country = models.CharField("Pays", max_length=40, blank=False)
 
     # Related to the ENS
-    first_year = models.IntegerField(verbose_name="Année d'entrée à l'ENS")
+    # ------------------
+
+    first_year = models.IntegerField("Année d'entrée à l'ENS")
+
+    STATUS_SCHOOL_CHOICES = (
+        ('normalien', 'élève normalien'),
+        ('etudiant', 'élève étudiant')
+    )
+    status_school = models.CharField(
+        "Status à l'école", max_length=30,
+        choices=STATUS_SCHOOL_CHOICES)
+
+    FIELD_CHOICES = (
+        ('mathematiques', 'Mathématiques'),
+        ('informatique', 'Informatique'),
+        ('physique', 'Physique'),
+        ('chimie', 'Chimie'),
+        ('geographie', 'Géographie')
+    )
     field = models.CharField(
-        max_length=100,
-        verbose_name="Département d'entrée")
-    notes = models.TextField(blank=True, verbose_name="Commentaires divers")
+        "Discipline d'entrée", max_length=100,
+        choices=FIELD_CHOICES)
+
+    PROFESSIONAL_STATUS_CHOICES = (
+        ('active', 'actif'),
+        ('retired', 'retraité'),
+        ('student', 'étudiant'),
+        ('', 'sans emploi')
+    )
+    professional_status = models.CharField(
+        "Situation professionnelle actuelle", max_length=30,
+        choices=PROFESSIONAL_STATUS_CHOICES)
 
 
 class Membership(models.Model):
@@ -94,62 +137,81 @@ class Membership(models.Model):
         return "Cotisation {} de {}".format(self.start_date.year, self.user)
 
     user = models.ForeignKey(
-        User, on_delete=models.PROTECT, verbose_name='Utilisateur')
+        User, on_delete=models.PROTECT,
+        related_name='membership', verbose_name='Utilisateur')
 
     models.UUIDField()
 
     uid = models.UUIDField(
-        unique=True,
-        editable=False,
-        default=uuid.uuid4,
-        verbose_name='Référence cotisation',
-    )
+        "Référence cotisation", unique=True,
+        default=uuid.uuid4, editable=False)
 
     STATUS_TYPE_SUBMITTED = 'submitted'
     STATUS_TYPE_ACCEPTED = 'accepted'
     STATUS_TYPE_REJECTED = 'rejected'
     STATUS_TYPE_CHOICES = (
-        (STATUS_TYPE_SUBMITTED, 'Demande en cours'),
-        (STATUS_TYPE_ACCEPTED, 'Cotisation validée'),
+        (STATUS_TYPE_SUBMITTED, 'Demande en cours (paiement en attente)'),
+        (STATUS_TYPE_ACCEPTED, 'Demande acceptée (paiement reçu)'),
         (STATUS_TYPE_REJECTED, 'Demande rejetée')
     )
     status = models.CharField(
-        max_length=30,
+        "Statut de la demande", max_length=30,
         choices=STATUS_TYPE_CHOICES,
-        default=STATUS_TYPE_SUBMITTED,
-        verbose_name='Statut de la demande'
-    )
+        default=STATUS_TYPE_SUBMITTED)
 
     # Creation and payment information
     created_on = models.DateTimeField(
-        auto_now_add=True, verbose_name="Date de création")
-    amount = models.DecimalField(max_digits=5, decimal_places=2,
-                                 verbose_name='Montant (€)')
+        "Date de création", auto_now_add=True)
 
-    REFERENCE_TYPE_BANK_TRANSFER = 'BANK_TRANSFER'
-    REFERENCE_TYPE_CHECK = 'CHECK'
-    REFERENCE_TYPE_CASH = 'CASH'
-    REFERENCE_TYPE_NONE = 'NONE'
-    REFERENCE_TYPE_CHOICES = (
-        (REFERENCE_TYPE_BANK_TRANSFER, 'Virement'),
-        (REFERENCE_TYPE_CHECK, 'Chèque'),
-        (REFERENCE_TYPE_CASH, 'Espèces'),
-        (REFERENCE_TYPE_NONE, 'Aucun'),
+    # Money transfer
+    # --------------
+
+    amount = models.DecimalField(
+        "Montant de la cotisation (€)", max_digits=5, decimal_places=2)
+
+    payment_amount = models.DecimalField(
+        "Montant réglé (€)", max_digits=5, decimal_places=2,
+        blank=True, null=True)
+
+    payment_date = models.DateField(
+        "Date de réception", blank=True, null=True)
+
+    PAYMENT_TYPE_BANK_TRANSFER = 'BANK_TRANSFER'
+    PAYMENT_TYPE_CHECK = 'CHECK'
+    PAYMENT_TYPE_CHOICES = (
+        (PAYMENT_TYPE_BANK_TRANSFER, 'Virement'),
+        (PAYMENT_TYPE_CHECK, 'Chèque')
     )
-    reference_type = models.CharField(
-        max_length=30,
-        choices=REFERENCE_TYPE_CHOICES,
-        default=REFERENCE_TYPE_NONE,
-        verbose_name='Méthode de paiment'
-    )
+    payment_type = models.CharField(
+        "Méthode de paiment", max_length=30, choices=PAYMENT_TYPE_CHOICES)
+
+    payment_bank = models.CharField(
+        "Banque (si applicable)", max_length=100, blank=True)
+
+    payment_reference = models.CharField(
+        "Référence chèque ou virement", max_length=100, blank=True)
+
+    payment_first_name = models.CharField(
+        "Prénom (si différent)", max_length=100, blank=True)
+
+    payment_last_name = models.CharField(
+        "Nom (si différent)", max_length=100, blank=True)
 
     # Membership duration
+    # -------------------
+
     start_date = models.DateField(verbose_name="Début de l'adhésion")
-    duration = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    duration = models.PositiveIntegerField(
+        "Durée de la cotisation (années civiles)",
+        validators=[MinValueValidator(1)], default=1)
 
     # Other informations
-    in_couple = models.BooleanField()
-    partner_name = models.CharField(max_length=100, blank=True)
+    IN_COUPLE_CHOICES = BOOL_CHOICES = ((True, 'Oui'), (False, 'Non'))
+    in_couple = models.BooleanField(
+        "Adhésion en couple", choices=IN_COUPLE_CHOICES, default=False)
+
+    partner_name = models.CharField(
+        "Nom du conjoint", max_length=100, blank=True)
 
     MEMBERSHIP_TYPE_ACTIVE = 'active'
     MEMBERSHIP_TYPE_RETIRED = 'retired'
@@ -160,7 +222,12 @@ class Membership(models.Model):
         (MEMBERSHIP_TYPE_YOUTH, 'jeune')
     )
     membership_type = models.CharField(
-        max_length=100,
+        "Type de cotisation", max_length=100,
         choices=MEMBERSHIP_TYPE_CHOICES,
-        default=MEMBERSHIP_TYPE_ACTIVE,
-        verbose_name="Type de cotisation")
+        default=MEMBERSHIP_TYPE_ACTIVE)
+
+    def compute_amount(self):
+        return 20
+
+    def next_start_date(self):
+        return date(2017, 1, 1)

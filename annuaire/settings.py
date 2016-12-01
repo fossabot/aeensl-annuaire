@@ -17,7 +17,6 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     # Default Django apps:
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -27,10 +26,22 @@ INSTALLED_APPS = [
 
     # Third party apps:
     'raven.contrib.django.raven_compat',  # Sentry
+    'compressor',  # take care of static files
+    'compressor_toolkit',  # addon for django-compressor
+
     'crispy_forms',  # Form layouts
+    'bootstrapform',
+    'allauth_bootstrap',
     'allauth',  # Authentication
+    'allauth.account',
     'phonenumber_field',  # Support for phone numbers
     'formtools',  # multipage wizard forms
+    'dal',  # django-autocomplete-light
+    'dal_select2',
+
+    # And add admin after django-autocomplete-light:
+    'django.contrib.admin',
+
 
     # Local apps:
     'users',
@@ -143,4 +154,16 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (
     ROOT_DIR('assets'),
+)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+
+    # Third party finders:
+    'npm.finders.NpmFinder',
+)
+
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'compressor_toolkit.precompilers.SCSSCompiler'),
 )

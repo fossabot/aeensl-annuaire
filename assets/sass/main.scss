@@ -1,1 +1,25 @@
 @import "../../node_modules/bootstrap/dist/css/bootstrap";
+@import "../../node_modules/intl-tel-input/src/css/intlTelInput";
+
+
+.iti-flag {background-image: url("/static/dist/img/flags.png");}
+
+
+// Forms
+// -----
+
+
+form > fieldset {
+	background-color: #f5f5f5;
+	padding: 1rem;
+	margin-bottom: 1.5rem;
+}
+
+form fieldset legend {
+	float: left;
+}
+
+span.asteriskField {
+    color: orange;
+    margin-left: 5px;
+}

@@ -35,6 +35,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         db_table = 'auth_user'
 
     email = models.EmailField('Email', max_length=255, unique=True)
+    password = models.CharField('Mot de passe', max_length=255)
 
     USERNAME_FIELD = 'email'
     objects = UserManager()
@@ -139,8 +140,6 @@ class Membership(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.PROTECT,
         related_name='membership', verbose_name='Utilisateur')
-
-    models.UUIDField()
 
     uid = models.UUIDField(
         "Référence cotisation", unique=True,

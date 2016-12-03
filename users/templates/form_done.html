@@ -8,5 +8,12 @@
 {% endblock %}
 
 {% block content %}
-{{ first_name }} {{ last_name }}, merci pour votre demande.
+
+<p>Votre demande a bien été enregistrée. Un email vous a été envoyé à {{ user.email }} pour vous confirmer votre demande d'adhésion. Une fois votre paiement enregistré, votre adhésion sera automatiquement acceptée.</p>
+
+<p>Vous pouvez retrouver les détail de votre cotisation sur la page de suivi à l'adresse suivante :</p>
+
+<p class="lead">
+<a href="{% url 'membership-detail' cotisation.uid %}">{% url 'membership-detail' cotisation.uid %}</a>
+</p>
 {% endblock %}

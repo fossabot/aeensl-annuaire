@@ -2,9 +2,12 @@ from django.shortcuts import render
 from django.forms.models import model_to_dict
 from django.contrib.auth import authenticate
 
+from django.views.generic import DetailView
+
 from formtools.wizard.views import SessionWizardView
 
 from users.forms import UserForm, ProfileForm, MembershipForm
+from users.models import Membership
 
 TEMPLATES = ["form_user.html", "form_profile.html", "form_membership.html"]
 
@@ -42,6 +45,7 @@ class RegistrationWizard(SessionWizardView):
         else:
             # Create a new user and a new profile
             u = UserForm(step_0).save()
+            u.is_active = False  # Not registered yet
 
             profile = ProfileForm(step_1).save(commit=False)
             profile.user = u
@@ -57,7 +61,17 @@ class RegistrationWizard(SessionWizardView):
         membership.save()
 
         return render(self.request, 'form_done.html', {
-            'first_name': u.first_name,
-            'last_name': u.last_name,
-            'form_data': [form.cleaned_data for form in form_list],
+            'user': u,
+            'profile': u.profile,
+            'cotisation': membership
         })
+
+
+class MembershipDetailView(DetailView):
+    slug_field = 'uid'
+    queryset = Membership.objects.all()
+
+    def get_object(self):
+        object = super(MembershipDetailView, self).get_object()
+        return object
+

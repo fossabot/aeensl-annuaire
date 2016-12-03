@@ -1,5 +1,6 @@
 from django.contrib.sites.models import Site
 from django.contrib import admin
+from dateutils import increment
 
 from users.models import User, Profile, Membership
 
@@ -14,10 +15,28 @@ class ProfileInline(admin.StackedInline):
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('email', )
+    list_display = ('email', 'profile', 'membership', 'is_admin', 'is_active')
     list_filter = ('is_admin', )
 
     inlines = (ProfileInline, )
+
+    fieldsets = [
+         (None, {'fields': ['email', 'password']}),
+         ('Permissions', {'fields': ['is_admin', 'is_active', 'groups', 'is_superuser']})
+    ]
+
+    def profile(self, obj):
+        return obj.profile
+
+    def membership(self, obj):
+        last = obj.membership.last()
+
+        if last is None:
+            return None
+
+        expire = increment(last.start_date, years=last.duration)
+        return expire
+    membership.short_description = "Cotisation jusqu'au"
 
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -53,3 +72,5 @@ admin.site.register(User, UserAdmin)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Membership, MembershipAdmin)
 admin.site.unregister(Site)
+
+admin.site.site_header = "Administration de l'annuaire"

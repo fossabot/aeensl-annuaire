@@ -1,0 +1,57 @@
+{% extends "root.html" %}
+
+{% block content %}
+<div class="row">
+<div class="col-md-8 offset-md-2">
+
+<section class="content-block">
+<div class="main-header">
+<h2>Cotisation {{object.start_date.year}} de {{object.user.profile}}</h2>
+<p>Votre cotisation est en attente de paiement. Une fois le paiement reçu, votre adhésion sera automatiquement acceptée.</p>
+</div>
+
+<ul class="list-group">
+  <li class="list-group-item">
+    <span class="tag tag-default tag-pill float-xs-right">{{ object.created_on }}</span>
+    Demande enregistrée
+  </li>
+  <li class="list-group-item disabled">
+    Paiement reçu
+  </li>
+</ul>
+
+<p>Pour toute question sur votre demande d'adhésion, merci de contacter le trésorier de l'association à tresorier@lyon-normalesup.org</p>
+</section>
+
+<section class="content-block">
+<h3>Récapitulatif de votre cotisation</h3>
+
+<table class="table table-hover">
+  <tbody>
+    <tr>
+      <th scope="row">Date et durée </th>
+      <td>À partir du {{ object.start_date }} pour {{ object.duration}} an (s)</td>
+    </tr>
+    <tr>
+      <th scope="row">Cotisation en couple</th>
+      {% if object.in_couple %}
+      <td>Oui ({{ object.partner_name}})</td>
+      {% else %}
+      <td>Non</td>
+      {% endif %}
+    </tr>
+    <tr>
+      <th scope="row">Type de cotisation</th>
+      <td>{{ object.get_membership_type_display }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Paiement</th>
+      <td>{{object.get_payment_type_display}} de {{object.amount}} euros</td>
+    </tr>
+  </tbody>
+</table>
+</section>
+
+</div>
+</div>
+{% endblock %}

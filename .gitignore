@@ -13,6 +13,8 @@ db.sqlite3
 media
 migrations
 
+anciens-venv
+
 ### SublimeText ###
 # cache files for sublime text
 *.tmlanguage.cache

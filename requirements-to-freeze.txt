@@ -13,4 +13,6 @@ django-npm
 whitenoise
 raven
 
+python-dateutil
+
 gunicorn

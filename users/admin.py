@@ -1,6 +1,6 @@
 from django.contrib.sites.models import Site
 from django.contrib import admin
-from dateutils import increment
+from dateutil.relativedelta import relativedelta
 
 from users.models import User, Profile, Membership
 
@@ -34,7 +34,7 @@ class UserAdmin(admin.ModelAdmin):
         if last is None:
             return None
 
-        expire = increment(last.start_date, years=last.duration)
+        expire = last.start_date + relativedelta(years=last.duration)
         return expire
     membership.short_description = "Cotisation jusqu'au"
 

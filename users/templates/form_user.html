@@ -9,19 +9,20 @@
 
 {% block content %}
 
-<div class="row">
-<div class="col-md-6 offset-md-3">
+<div class="text-xs-center" id="form-progress">Étape {{ wizard.steps.step1 }} sur {{ wizard.steps.count }}</div>
 
-<h3>Adhésion à l'association</h3>
-<p>Veuillez entrer une adresse email valide. Cette adresse sera utilisée pour vous tenir informé de l'état de votre adhésion. Si vous avez déjà adhéré à l'association, utilisez vos identifiants pour ré-adhérer.</p>
+<div class="progress mb-4">
+  <div class="progress-bar" role="progressbar" style="width: 66%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="2"></div>
+</div>
 
-<form action="" method="POST">
+<form action="" method="post">{% csrf_token %}
+<table>
 {{ wizard.management_form }}
 {% crispy wizard.form wizard.form.helper %}
+</table>
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" type="submit" formnovalidate="formnovalidate" class="btn" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+{% endif %}
+<input type="submit" class="btn btn-primary" value="{% trans "submit" %}"/>
 </form>
-
-</div>
-
-</div>
-
 {% endblock %}

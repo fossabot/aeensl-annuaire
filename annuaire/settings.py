@@ -29,6 +29,9 @@ INSTALLED_APPS = [
     'compressor',  # take care of static files
     'compressor_toolkit',  # addon for django-compressor
 
+    # Local apps:
+    'users',
+
     'crispy_forms',  # Form layouts
     'bootstrapform',
     'allauth_bootstrap',
@@ -39,12 +42,10 @@ INSTALLED_APPS = [
     'dal',  # django-autocomplete-light
     'dal_select2',
 
+    'solo',
+
     # And add admin after django-autocomplete-light:
     'django.contrib.admin',
-
-
-    # Local apps:
-    'users',
 ]
 
 if DEBUG:
@@ -144,6 +145,9 @@ TIME_ZONE = 'Europe/Paris'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+PHONENUMBER_DB_FORMAT = 'NATIONAL'
+PHONENUMBER_DEFAULT_REGION = 'FR'
 
 
 # Static files (CSS, JavaScript, Images)

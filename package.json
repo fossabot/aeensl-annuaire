@@ -11,7 +11,7 @@
   },
   "author": "Luc Rocher",
   "dependencies": {
-    "bootstrap": "^4.0.0-alpha.5",
+    "bootstrap": "^4.0.0-alpha.6",
     "intl-tel-input": "^9.2.4",
     "places.js": "^1.4.7"
   },

@@ -1,5 +1,8 @@
-var $ = require('jquery');
+var $ = window.$ = window.jQuery = require('jquery');
 var places = require('places.js');
+
+global.Tether = require('tether');
+require('bootstrap');
 
 require('intl-tel-input');
 require('intl-tel-input/build/js/utils');
@@ -37,15 +40,17 @@ placesAutocomplete.on('change', function resultSelected(e) {
 	document.querySelector('#id_1-country').value = e.suggestion.country || '';
 });
 
-places({
-	container: document.querySelector('#id_1-country'),
-	type: 'country',
-	templates: {
-		suggestion: function(suggestion) {
-			code = '<div class="d-inline-block iti-flag ' + suggestion.countryCode + '"></div> ' +
-				   suggestion.highlight.name;
-			console.log(code);
-			return code;
+if(document.querySelector('#id_1-country')) {
+	places({
+		container: document.querySelector('#id_1-country'),
+		type: 'country',
+		templates: {
+			suggestion: function(suggestion) {
+				code = '<div class="d-inline-block iti-flag ' + suggestion.countryCode + '"></div> ' +
+					   suggestion.highlight.name;
+				console.log(code);
+				return code;
+			}
 		}
-	}
-});	
+	})
+}

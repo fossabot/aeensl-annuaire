@@ -1,4 +1,4 @@
-from .models import Profile, Membership
+from .models import Membership
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -8,18 +8,21 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, Div
 from crispy_forms.bootstrap import InlineRadios, PrependedText
 
+from phonenumber_field.widgets import PhoneNumberInternationalFallbackWidget
+
+
 User = get_user_model()
 
 
-class UserForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
+class UserLoginForm(forms.ModelForm):
+    password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
 
     class Meta:
-        model = User
         fields = ['email', 'password']
+        model = User
 
     def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
+        super(UserLoginForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper()
 
         self.helper.form_tag = False
@@ -50,9 +53,9 @@ class UserForm(forms.ModelForm):
             }, code='invalid')
 
 
-class ProfileForm(forms.ModelForm):
+class UserForm(forms.ModelForm):
     class Meta:
-        model = Profile
+        model = User
         fields = [
             'first_name',
             'last_name',
@@ -68,9 +71,12 @@ class ProfileForm(forms.ModelForm):
             'city',
             'country',
         ]
+        widgets = {
+            'phone_number': PhoneNumberInternationalFallbackWidget(),
+        }
 
     def __init__(self, *args, **kwargs):
-        super(ProfileForm, self).__init__(*args, **kwargs)
+        super(UserForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
 
         self.helper.layout = Layout(

@@ -6,18 +6,33 @@
 
 <section class="content-block">
 <div class="main-header">
-<h2>Cotisation {{object.start_date.year}} de {{object.user.profile}}</h2>
+<h2>Cotisation {{object.start_date.year}} de {{object.user}}</h2>
+{% if object.status == 'accepted' %}
+<p>Votre demande a été validée et enregistrée. Des identifiants pour l'espace adhérent vous seront communiqués sous peu.</p>
+{% elif object.status == 'rejected' %}
+<p>Votre demande a été rejetée. Merci de prendre contact avec le trésorier pour plus d'information.</p>
+{% else %}
 <p>Votre cotisation est en attente de paiement. Une fois le paiement reçu, votre adhésion sera automatiquement acceptée.</p>
+{% endif %}
 </div>
 
 <ul class="list-group">
   <li class="list-group-item">
-    <span class="tag tag-default tag-pill float-xs-right">{{ object.created_on }}</span>
-    Demande enregistrée
+    Demande enregistrée <span class="badge badge-info ml-auto">{{ object.created_on }}</span>
   </li>
+  {% if object.status == 'accepted' %}
+  <li class="list-group-item">
+      Demande validée par le trésorier.
+  </li>
+  {% elif object.status == 'rejected' %}
+  <li class="list-group-item">
+      Demande rejetée. Votre paiement n'a pas abouti ou votre appartenance à l'école n'a pu être établie.
+  </li>
+  {% else %}
   <li class="list-group-item disabled">
-    Paiement reçu
+    Demande en attente de validation par le trésorier. Nous vérifions que votre cotisation a bien été réglée, ainsi que votre passage à l'école.
   </li>
+  {% endif %}
 </ul>
 
 <p>Pour toute question sur votre demande d'adhésion, merci de contacter le trésorier de l'association à tresorier@lyon-normalesup.org</p>
@@ -46,7 +61,11 @@
     </tr>
     <tr>
       <th scope="row">Paiement</th>
+      {% if object.amount == 0 %}
+      <td>Cotisation offerte</td>
+      {% else %}
       <td>{{object.get_payment_type_display}} de {{object.amount}} euros</td>
+      {% endif %}
     </tr>
   </tbody>
 </table>

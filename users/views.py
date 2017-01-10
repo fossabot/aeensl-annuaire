@@ -6,14 +6,14 @@ from django.views.generic import DetailView
 
 from formtools.wizard.views import SessionWizardView
 
-from users.forms import UserForm, ProfileForm, MembershipForm
+from users.forms import UserLoginForm, UserForm, MembershipForm
 from users.models import Membership
 
-TEMPLATES = ["form_user.html", "form_profile.html", "form_membership.html"]
+TEMPLATES = ["form_login.html", "form_user.html", "form_membership.html"]
 
 
 class RegistrationWizard(SessionWizardView):
-    form_list = [UserForm, ProfileForm, MembershipForm]
+    form_list = [UserLoginForm, UserForm, MembershipForm]
 
     def get_template_names(self):
         return [TEMPLATES[int(self.steps.current)]]
@@ -26,9 +26,13 @@ class RegistrationWizard(SessionWizardView):
                 password=step_0['password'])
 
             if u:
-                return model_to_dict(u.profile)
+                return u.__dict__
 
     def done(self, form_list, **kwargs):
+        """
+        Gather the data from the three forms. If the user already exists,
+        update the profile, if not create a new user. Then add a new membership.
+        """
         step_0 = self.get_cleaned_data_for_step('0')
         step_1 = self.get_cleaned_data_for_step('1')
         step_2 = self.get_cleaned_data_for_step('2')
@@ -38,32 +42,26 @@ class RegistrationWizard(SessionWizardView):
             password=step_0['password'])
 
         if u:
-            # Update the user profile
-            profile = u.profile
-            profile_form = ProfileForm(step_1, instance=profile)
-            profile_form.save()
+            # Update the user profile with the step 1
+            user_form = UserForm(step_1, instance=u)
+            user_form.save()
         else:
-            # Create a new user and a new profile
-            u = UserForm(step_0).save()
+            # Create a new user from steps 0 and 1
+            u = UserForm(step_1).save()
+            u.username = step_0['email']
             u.is_active = False  # Not registered yet
-
-            profile = ProfileForm(step_1).save(commit=False)
-            profile.user = u
-            profile.save()
 
         # Create a new Membership object
         membership = MembershipForm(step_2).save(commit=False)
         membership.user = u
-        membership.amount = membership.compute_amount()
         membership.start_date = membership.next_start_date()
+        membership.amount = membership.compute_amount()
         membership.duration = 1
-
         membership.save()
 
         return render(self.request, 'form_done.html', {
             'user': u,
-            'profile': u.profile,
-            'cotisation': membership
+            'cotisation': membership,
         })
 
 
@@ -74,4 +72,3 @@ class MembershipDetailView(DetailView):
     def get_object(self):
         object = super(MembershipDetailView, self).get_object()
         return object
-

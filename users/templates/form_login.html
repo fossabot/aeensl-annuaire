@@ -1,0 +1,37 @@
+{% extends "root.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load static %}
+
+{% block head %}
+{{ wizard.form.media }}
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+<div class="col-md-6 offset-md-3">
+
+<h3>Adhésion à l'association</h3>
+<p>Veuillez entrer une adresse email valide. Cette adresse sera utilisée pour vous tenir informé de l'état de votre adhésion. Si vous avez déjà adhéré à l'association, utilisez vos identifiants pour ré-adhérer.</p>
+
+<div class="alert alert-warning" role="alert">
+  <h4 class="alert-heading">
+    Migration de l'annuaire
+  </h4>
+  <p>Cette plateforme permettra bientôt  de se connecter en utilisant le mot de
+  passe de l'annuaire. Mise en place prévue en <strong>février 2017</strong>.
+  Pour l'instant, merci d'entrer uniquement votre adresse email.
+</p>
+</div>
+
+<form action="" method="POST">
+{{ wizard.management_form }}
+{% crispy wizard.form wizard.form.helper %}
+</form>
+
+</div>
+
+</div>
+
+{% endblock %}

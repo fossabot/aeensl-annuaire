@@ -8,6 +8,10 @@ django-phonenumber-field
 django-formtools
 django-autocomplete-light
 django-allauth-bootstrap
+django-solo
+
+django-compressor-toolkit
+django-compressor
 
 django-npm
 whitenoise

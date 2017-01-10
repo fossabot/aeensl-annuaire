@@ -2,12 +2,23 @@
 from django.contrib.auth.models import \
     AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
+from solo.models import SingletonModel
 
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MinValueValidator
 
 import uuid
 from datetime import date
+
+
+class SiteConfiguration(SingletonModel):
+    header_message = models.CharField("Bandeau d'avertissement", max_length=255, blank=True)
+
+    def __unicode__(self):
+        return u"Configuration du site"
+
+    class Meta:
+        verbose_name = "Configuration du site"
 
 
 class UserManager(BaseUserManager):
@@ -34,46 +45,16 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name_plural = 'Utilisateurs'
         db_table = 'auth_user'
 
-    email = models.EmailField('Email', max_length=255, unique=True)
-    password = models.CharField('Mot de passe', max_length=255)
-
     USERNAME_FIELD = 'email'
     objects = UserManager()
 
+    # Generic fields
+    email = models.EmailField('Email', max_length=255, unique=True)
+    password = models.CharField('Mot de passe', max_length=255)
+
+    # Generic flags
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
-
-    def __str__(self):
-        return str(self.email)
-
-    @property
-    def is_staff(self):
-        return self.is_admin
-
-    def has_perm(self, perm, obj=None):
-        return self.is_admin
-
-    def has_module_perms(self, app_label):
-        return self.is_admin
-
-    def get_short_name(self):
-        return self.email
-
-    def get_full_name(self):
-        return self.__str__()
-
-
-class Profile(models.Model):
-    class Meta:
-        verbose_name = 'Profil'
-        verbose_name_plural = 'Profils'
-
-    def __str__(self):
-        return "{} {}".format(self.first_name, self.last_name)
-
-    user = models.OneToOneField(
-        User, on_delete=models.PROTECT,
-        related_name='profile', verbose_name='Utilisateur')
 
     # Demographics and address
     # ------------------------
@@ -122,11 +103,30 @@ class Profile(models.Model):
         ('active', 'actif'),
         ('retired', 'retraité'),
         ('student', 'étudiant'),
-        ('', 'sans emploi')
+        ('inactive', 'sans emploi')
     )
     professional_status = models.CharField(
         "Situation professionnelle actuelle", max_length=30,
         choices=PROFESSIONAL_STATUS_CHOICES)
+
+    def __str__(self):
+        return "{} {}".format(self.first_name, self.last_name)
+
+    @property
+    def is_staff(self):
+        return self.is_admin
+
+    def has_perm(self, perm, obj=None):
+        return self.is_admin
+
+    def has_module_perms(self, app_label):
+        return self.is_admin
+
+    def get_short_name(self):
+        return self.email
+
+    def get_full_name(self):
+        return self.__str__()
 
 
 class Membership(models.Model):
@@ -136,6 +136,30 @@ class Membership(models.Model):
 
     def __str__(self):
         return "Cotisation {} de {}".format(self.start_date.year, self.user)
+
+    def compute_amount(self, user=None):
+        if user is None:
+            user = self.user
+
+        active = self.membership_type == Membership.MEMBERSHIP_TYPE_ACTIVE
+        retired = self.membership_type == Membership.MEMBERSHIP_TYPE_RETIRED
+        youth = self.membership_type == Membership.MEMBERSHIP_TYPE_YOUTH
+
+        # Up to four years of free membership
+        free_membership = self.start_date.year < user.first_year + 4
+
+        if free_membership:
+            return 0
+
+        if active:
+            return 35 if self.in_couple else 45
+        if retired:
+            return 30 if self.in_couple else 40
+        if youth:
+            return 12.50 if self.in_couple else 20
+
+        raise ValueError("Le type de cotisation {} n'est pas valide.".format(self.membership_type))
+
 
     user = models.ForeignKey(
         User, on_delete=models.PROTECT,
@@ -225,8 +249,6 @@ class Membership(models.Model):
         choices=MEMBERSHIP_TYPE_CHOICES,
         default=MEMBERSHIP_TYPE_ACTIVE)
 
-    def compute_amount(self):
-        return 20
 
     def next_start_date(self):
         return date(2017, 1, 1)

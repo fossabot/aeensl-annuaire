@@ -1,17 +1,19 @@
 import environ
+import raven
 
 ROOT_DIR = environ.Path(__file__) - 2
 APPS_DIR = ROOT_DIR.path('annuaire')
 
 env = environ.Env()
-env.read_env(".env")
+env.read_env(ROOT_DIR(".env"))
 
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 DEBUG = env.bool('DJANGO_DEBUG', False)
 
 ALLOWED_HOSTS = [
     'localhost', '127.0.0.1', '[::1]',
-    'annuaire-dev.herokuapp.com']
+    'annuaire-dev.herokuapp.com',
+    'adherent.lyon-normalesup.org']
 
 # APPLICATION DEFINITION
 
@@ -52,6 +54,9 @@ if DEBUG:
     INSTALLED_APPS += ['whitenoise.runserver_nostatic']
 
 MIDDLEWARE = (
+    # Log 404 errors using Sentry
+    'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
+
     # Default Django middlewares:
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -171,3 +176,58 @@ STATICFILES_FINDERS = (
 COMPRESS_PRECOMPILERS = (
     ('text/x-scss', 'compressor_toolkit.precompilers.SCSSCompiler'),
 )
+
+
+# Monitoring with Sentry
+# ----------------------
+
+RAVEN_CONFIG = {
+    'dsn': env('SENTRY_DSN', default=None),
+    # If you are using git, you can also automatically configure the
+    # release based on the git info.
+    'release': raven.fetch_git_sha(str(ROOT_DIR)),
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': True,
+    'root': {
+        'level': 'WARNING',
+        'handlers': ['sentry'],
+    },
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s '
+                      '%(process)d %(thread)d %(message)s'
+        },
+    },
+    'handlers': {
+        'sentry': {
+            'level': 'ERROR', # To capture more than ERROR, change to WARNING, INFO, etc.
+            'class': 'raven.contrib.django.raven_compat.handlers.SentryHandler',
+            'tags': {'custom-tag': 'x'},
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'raven': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+        'sentry.errors': {
+            'level': 'DEBUG',
+            'handlers': ['console'],
+            'propagate': False,
+        },
+    },
+}

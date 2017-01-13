@@ -2,12 +2,12 @@ from django.shortcuts import render
 from django.forms.models import model_to_dict
 from django.contrib.auth import authenticate
 
-from django.views.generic import DetailView
+from django.views.generic import DetailView, ListView
 
 from formtools.wizard.views import SessionWizardView
 
 from users.forms import UserLoginForm, UserForm, MembershipForm
-from users.models import Membership
+from users.models import Membership, User
 
 TEMPLATES = ["form_login.html", "form_user.html", "form_membership.html"]
 
@@ -69,6 +69,15 @@ class MembershipDetailView(DetailView):
     slug_field = 'uid'
     queryset = Membership.objects.all()
 
+
+class UserDetailView(DetailView):
+    queryset = User.objects.all()
+
+
+class CurrentUserDetailView(UserDetailView):
     def get_object(self):
-        object = super(MembershipDetailView, self).get_object()
-        return object
+        return self.request.user
+
+
+class UserListView(ListView):
+    model = User

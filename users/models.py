@@ -160,7 +160,6 @@ class Membership(models.Model):
 
         raise ValueError("Le type de cotisation {} n'est pas valide.".format(self.membership_type))
 
-
     user = models.ForeignKey(
         User, on_delete=models.PROTECT,
         related_name='membership', verbose_name='Utilisateur')
@@ -249,6 +248,11 @@ class Membership(models.Model):
         choices=MEMBERSHIP_TYPE_CHOICES,
         default=MEMBERSHIP_TYPE_ACTIVE)
 
-
     def next_start_date(self):
         return date(2017, 1, 1)
+
+    def is_check(self):
+        return self.payment_type == Membership.PAYMENT_TYPE_CHECK
+
+    def is_transfer(self):
+        return self.payment_type == Membership.PAYMENT_TYPE_BANK_TRANSFER

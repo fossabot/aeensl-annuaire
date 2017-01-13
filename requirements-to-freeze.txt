@@ -1,22 +1,25 @@
 django
 psycopg2
+python-dateutil
 
-django-allauth
+# Models and configuration
 django-environ
-django-crispy-forms
-django-phonenumber-field
-django-formtools
-django-autocomplete-light
+django-allauth
 django-allauth-bootstrap
 django-solo
 
+# Interface
+django-crispy-forms
+django-phonenumber-field
+django-formtools
+
+# Serving assets
 django-compressor-toolkit
 django-compressor
-
-django-npm
 whitenoise
+
+# Local development
+django-npm
+
+# Monitoring with sentry
 raven
-
-python-dateutil
-
-gunicorn

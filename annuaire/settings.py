@@ -78,7 +78,7 @@ SITE_ID = 1
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [ROOT_DIR('templates'), ROOT_DIR('templates/users'), ROOT_DIR('templates/allauth')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,6 +119,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
 ACCOUNT_ALLOW_REGISTRATION = False  # No manual registration
+LOGIN_REDIRECT_URL = 'current_user_profile'
 
 # Custom user app defaults
 AUTH_USER_MODEL = 'users.User'
@@ -231,3 +232,7 @@ LOGGING = {
         },
     },
 }
+
+if DEBUG:
+    RAVEN_CONFIG = {}
+    LOGGING = {}

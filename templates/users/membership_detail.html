@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="row justify-content-center">
+<div class="col-md-8">
+
+<section class="content-block">
+  <div class="main-header">
+    <h2>Cotisation {{object.start_date.year}} de {{object.user}}</h2>
+    {% if object.status == 'accepted' %}
+    <p>Votre demande a été validée et enregistrée. Des identifiants pour
+      l'espace adhérent vous seront communiqués sous peu.</p>
+    {% elif object.status == 'rejected' %}
+    <p> Votre demande a été rejetée. Merci de prendre contact avec le trésorier
+      pour plus d'information.</p>
+    {% else %}
+    <p> Votre cotisation est en attente de paiement. Une fois le paiement reçu,
+      votre adhésion sera automatiquement acceptée.</p>
+    {% endif %}
+  </div>
+
+  <ul class="list-group">
+    <li class="list-group-item">
+      Demande enregistrée <span class="badge badge-info ml-auto">{{ object.created_on }}</span>
+    </li>
+    {% if object.status == 'accepted' %}
+    <li class="list-group-item">
+        Demande validée par le trésorier.
+    </li>
+    {% elif object.status == 'rejected' %}
+    <li class="list-group-item">
+        Demande rejetée. Votre paiement n'a pas abouti ou votre appartenance à l'école n'a pu être établie.
+    </li>
+    {% else %}
+    <li class="list-group-item disabled">
+      Demande en attente de validation par le trésorier. Nous vérifions que votre cotisation a bien été réglée, ainsi que votre passage à l'école.
+    </li>
+    {% endif %}
+  </ul>
+
+  <p>
+    Pour toute question sur votre demande d'adhésion, merci de contacter le
+    trésorier de l'association à tresorier@lyon-normalesup.org</p>
+</section>
+
+<section class="content-block">
+<h3>Récapitulatif de votre cotisation</h3>
+
+<table class="table table-hover">
+  <tbody>
+    <tr>
+      <th scope="row">Date et durée </th>
+      <td>À partir du {{ object.start_date }} pour {{ object.duration}}
+        {{ object.duration|pluralize:"an,ans" }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Cotisation en couple</th>
+      {% if object.in_couple %}
+      <td>Oui ({{ object.partner_name}})</td>
+      {% else %}
+      <td>Non</td>
+      {% endif %}
+    </tr>
+    <tr>
+      <th scope="row">Type de cotisation</th>
+      <td>{{ object.get_membership_type_display }}</td>
+    </tr>
+    <tr>
+      <th scope="row">Paiement</th>
+      {% if object.amount == 0 %}
+      <td>Cotisation offerte</td>
+      {% else %}
+      <td>{{object.get_payment_type_display}} de {{object.amount}} euros</td>
+      {% endif %}
+    </tr>
+  </tbody>
+</table>
+</section>
+
+<section class="content-block">
+  <h3>Paiement de la cotisation</h3>
+  <p>
+    Afin de faciliter le traitement de votre demande, merci d'indiquer votre
+    nom en référence du virement ou au dos du chèque si vous n'effectuez pas
+    le paiement vous-même.
+  </p>
+
+  <div class="card-deck">
+  <div class="card card-outline-{{ object.is_transfer|yesno:"primary,secondary" }}">
+    <div class="card-block">
+      <h4 class="card-title">Virement</h4>
+      <dl>
+        <dt>IBAN</dt>
+        <dd>FR36 2004 1000 0122 8535 9S02 037</dd>
+        <dt>BIC</dt>
+        <dd>PSSTFRPPPAR</dd>
+      </dl>
+      <p class="card-text">
+        Vous pouvez aussi utiliser le
+        <a href="{% static 'documents/rib-aeens.pdf' %}">RIB complet</a>
+        au format PDF.
+      </p>
+    </div>
+  </div>
+  <div class="card card-outline-{{ object.is_check|yesno:"primary,secondary" }}">
+    <div class="card-block">
+      <h4 class="card-title">Chèque</h4>
+      <p class="card-text">
+        À l'ordre de <strong>AE ENS</strong>, envoyer à l'adrese suivante :
+      </p>
+      <address class="card-text">
+        Trésorier adjoint <br />
+        Anciens élèves ENS Lyon <br />
+        15, parvis René Descartes <br />
+        BP 7000 69342 Lyon Cedex 07
+      </address>
+      <p class="card-text"><small class="text-muted">Si vous souhaitez changer
+        votre mode de paiement, merci de contacter le trésorier.</small></p>
+    </div>
+  </div>
+</div>
+</section>
+
+</div>
+</div>
+{% endblock %}

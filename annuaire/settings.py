@@ -30,6 +30,7 @@ INSTALLED_APPS = [
     'raven.contrib.django.raven_compat',  # Sentry
     'compressor',  # take care of static files
     'compressor_toolkit',  # addon for django-compressor
+    'post_office',
 
     # Local apps:
     'users',
@@ -101,6 +102,12 @@ DATABASES = {
     'default': env.db('DATABASE_URL', default='postgres:///annuaire'),
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True
+
+
+# Sending emails with django-post_office
+# --------------------------------------
+
+EMAIL_BACKEND = 'post_office.EmailBackend'
 
 
 # STORAGE CONFIGURATION

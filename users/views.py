@@ -3,10 +3,13 @@ from django.contrib.auth import authenticate
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
+from django.core.urlresolvers import set_script_prefix
+from django.urls import reverse
 
 from django.views.generic import DetailView, ListView
 
 from formtools.wizard.views import SessionWizardView
+from post_office import mail
 
 from users.forms import UserLoginForm, UserForm, MembershipForm
 from users.models import Membership, User
@@ -64,6 +67,15 @@ class RegistrationWizard(SessionWizardView):
         membership.amount = membership.compute_amount()
         membership.duration = 1  # valid for one year
         membership.save()
+
+        mail.send(
+            u.email,
+            'luc@lyon-normalesup.org',  # For development purposes
+            template='membership_submitted',
+            context={
+                'membership': membership
+            },
+        )
 
         return render(self.request, 'form_done.html', {
             'user': u,

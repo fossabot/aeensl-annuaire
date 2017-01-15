@@ -5,10 +5,11 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Field, Fieldset, Submit, Div
+from crispy_forms.layout import Layout, Field, Fieldset, Submit, Div, HTML
 from crispy_forms.bootstrap import InlineRadios, PrependedText
 
 from phonenumber_field.widgets import PhoneNumberInternationalFallbackWidget
+from collections import defaultdict
 
 
 User = get_user_model()
@@ -64,6 +65,8 @@ class UserForm(forms.ModelForm):
             'first_year',
             'field',
             'professional_status',
+            'status_school',
+            'proof_school',
 
             'address_line_1',
             'address_line_2',
@@ -78,6 +81,13 @@ class UserForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
+
+        # Add <select> optgroups for field of study
+        field_choices = defaultdict(list)
+        field_choices['---------'] = '---------'
+        for f in self.fields['field'].queryset.exclude(group='MIGRATION_OLD'):
+            field_choices[f.group].append((f.id, f.name))
+        self.fields['field'].choices = list(field_choices.items())
 
         self.helper.layout = Layout(
             Fieldset(
@@ -103,7 +113,16 @@ class UserForm(forms.ModelForm):
                 'Informations professionelles',
                 'first_year',
                 'field',
-                'professional_status'
+                'status_school',
+                'professional_status',
+                HTML(
+                    "<div class='alert alert-info' role='alert'>"
+                    "<h5 class='alert-heading'>Documents supplémentaires</h4>"
+                    "<p>Afin de faciliter la vérification, merci d'ajouter un "
+                    "document permettant d'attester votre présence à l'école : "
+                    "justificatif de scolarité, carte d'étudiant, <i>etc.</i></p>"
+                    "</div>"),
+                'proof_school',
             )
         )
 
@@ -132,8 +151,8 @@ class MembershipForm(forms.ModelForm):
                 'membership_type',
 
                 Div(
-                    Div(InlineRadios('in_couple'), css_class='col-sm-2'),
-                    Div('partner_name', css_class='col-sm-10'),
+                    Div(InlineRadios('in_couple', template="crispy/radioselect_inline.html"), css_class='col-sm-3'),
+                    Div('partner_name', css_class='col-sm-9'),
                     css_class='row')
             )
         )

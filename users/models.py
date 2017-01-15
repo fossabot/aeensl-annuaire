@@ -39,6 +39,19 @@ class UserManager(BaseUserManager):
         return user
 
 
+class FieldOfStudy(models.Model):
+    class Meta:
+        verbose_name = "Discipline"
+        verbose_name_plural = 'Disciplines'
+        db_table = 'field_of_study'
+
+    def __str__(self):
+        return self.name
+
+    name = models.CharField('Nom de la discipline', max_length=255)
+    group = models.CharField('Filière', max_length=255)
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = 'Utilisateur'
@@ -88,16 +101,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         "Status à l'école", max_length=30,
         choices=STATUS_SCHOOL_CHOICES)
 
-    FIELD_CHOICES = (
-        ('mathematiques', 'Mathématiques'),
-        ('informatique', 'Informatique'),
-        ('physique', 'Physique'),
-        ('chimie', 'Chimie'),
-        ('geographie', 'Géographie')
-    )
-    field = models.CharField(
-        "Discipline d'entrée", max_length=100,
-        choices=FIELD_CHOICES)
+    field = models.ForeignKey(
+        FieldOfStudy, verbose_name="Discipline d'entrée")
 
     PROFESSIONAL_STATUS_CHOICES = (
         ('active', 'actif'),
@@ -108,6 +113,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     professional_status = models.CharField(
         "Situation professionnelle actuelle", max_length=30,
         choices=PROFESSIONAL_STATUS_CHOICES)
+
+    proof_school = models.FileField(
+        "Justificatif de passage à l'ENS", upload_to='uploads/%Y/%m/%d/',
+        blank=True, null=True)
+
 
     def __str__(self):
         return "{} {}".format(self.first_name, self.last_name)
@@ -158,7 +168,9 @@ class Membership(models.Model):
         if youth:
             return 12.50 if self.in_couple else 20
 
-        raise ValueError("Le type de cotisation {} n'est pas valide.".format(self.membership_type))
+        raise ValueError(
+            "Le type de cotisation {} n'est pas "
+            "valide.".format(self.membership_type))
 
     user = models.ForeignKey(
         User, on_delete=models.PROTECT,

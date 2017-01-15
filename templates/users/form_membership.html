@@ -9,8 +9,10 @@
 
 {% block content %}
 
-<div class="text-xs-center" id="form-progress">Étape {{ wizard.steps.step1 }} sur {{ wizard.steps.count }}</div>
-<progress class="progress" value="{{ wizard.steps.step1 }}" max="{{ wizard.steps.count }}" aria-describedby="form-progress"></progress>
+<div class="text-xs-center" id="form-progress">Étape {{ wizard.steps.step2 }} sur {{ wizard.steps.count }}</div>
+<div class="progress mb-4">
+  <div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="2"></div>
+</div>
 
 <form action="" method="post">{% csrf_token %}
 <table>

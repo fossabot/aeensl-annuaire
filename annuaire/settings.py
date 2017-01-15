@@ -107,6 +107,9 @@ DATABASES['default']['ATOMIC_REQUESTS'] = True
 # ---------------------
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+MEDIA_ROOT = ROOT_DIR('media_storage')
+MEDIA_TMP = ROOT_DIR('media_storage/tmp')
+MEDIA_URL = '/media/'
 
 
 # AUTHENTICATION CONFIGURATION
@@ -159,7 +162,7 @@ PHONENUMBER_DEFAULT_REGION = 'FR'
 # Static files (CSS, JavaScript, Images)
 # --------------------------------------
 
-STATIC_ROOT = str(ROOT_DIR('staticfiles'))
+STATIC_ROOT = ROOT_DIR('staticfiles')
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = (

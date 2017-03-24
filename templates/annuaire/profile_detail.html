@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'annuaire_app:index' %}">Annuaire</a></li>
+  <li class="breadcrumb-item">Normalien par promotion</li>
+  <li class="breadcrumb-item"><a href="{% url 'annuaire_app:promo_list' object.entrance_year %}">{{ object.entrance_year}}</a></li>
+  <li class="breadcrumb-item active">{{ object }} <span class="badge badge-primary">{{object.nomenclature}}</span></li>
+</ol>
+
+<div class="row justify-content-center">
+<div class="col-md-8">
+  <h1 class="mb-2">{{ object }}</h1>
+
+  <div class="list-group">
+    <div class="list-group-item list-group-item-action">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">Entrée en {{object.entrance_year }} à l'ENS de Lyon</h5>
+      </div>
+      <p class="mb-1">sur voie « {{object.entrance_field}} »</p>
+    </div>
+    <div class="list-group-item list-group-item-action {{object.website_isvisible | yesno:',list-group-item-warning'}}">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">Site web personnel</h5>
+      </div>
+      {% if view.is_current_user or object.website_isvisible %}
+      <p class="mb-1">{{ object.website }}</p>
+      {% else %}
+      <p class="mb-1">Pas de de site web ou site web masqué</p>
+      {% endif %}
+    </div>
+    <div class="list-group-item list-group-item-action {{object.email_isvisible | yesno:',list-group-item-warning'}}">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">Contacter par email</h5>
+      </div>
+      {% if view.is_current_user or object.email_isvisible %}
+      <p class="mb-1">{{ object.user.email}}</p>
+      {% else %}
+      <p class="mb-1">Pas de d'email ou email masqué</p>
+      {% endif %}
+    </div>
+    <div class="list-group-item list-group-item-action {{object.phone_number_isvisible | yesno:',list-group-item-warning'}}">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">Contacter par téléphone</h5>
+      </div>
+      {% if view.is_current_user or object.phone_number_isvisible %}
+      <p class="mb-1">{{ object.phone_number}}</p>
+      {% else %}
+      <p class="mb-1">Pas de numéro de téléphone ou numéro masqué</p>
+      {% endif %}
+    </div>
+    {% for add in object.address_set.all %}
+    {% if view.is_current_user or add.is_public %}
+    <div class="list-group-item list-group-item-action flex-column align-items-start {{ add.is_public | yesno:',list-group-item-warning'}}">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">Adresse postale</h5>
+      </div>
+      <p class="mb-1">{{ add.line_1 }} {{ add.line_2 }}</p>
+      <p class="mb-1">{{ add.postal_code }} {{ add.city }}</p>
+      <p class="mb-1">{{ add.country }}</p>
+    </div>
+    {% endif %}
+    {% endfor %}
+    </div>
+
+  <hr class="my-4">
+
+  <ul class="list-group">
+  {% for m in object.profile.membership.all %}
+  <li class="list-group-item justify-content-between">
+    Cotisation {{ m.get_membership_type_display }} à partir du {{m.start_date}}
+    <span class="badge badge-default badge-pill">{{ m.amount }} €</span>
+  </li>
+  {% endfor %}
+  </ul>
+</div>
+</div>
+{% endblock %}

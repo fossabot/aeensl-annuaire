@@ -2,23 +2,13 @@
 from django.contrib.auth.models import \
     AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
-from solo.models import SingletonModel
 
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MinValueValidator
+from post_office import mail
 
 import uuid
 from datetime import date
-
-
-class SiteConfiguration(SingletonModel):
-    header_message = models.CharField("Bandeau d'avertissement", max_length=255, blank=True)
-
-    def __unicode__(self):
-        return u"Configuration du site"
-
-    class Meta:
-        verbose_name = "Configuration du site"
 
 
 class UserManager(BaseUserManager):
@@ -39,70 +29,76 @@ class UserManager(BaseUserManager):
         return user
 
 
-class FieldOfStudy(models.Model):
+class Profile(models.Model):
     class Meta:
-        verbose_name = "Discipline"
-        verbose_name_plural = 'Disciplines'
-        db_table = 'field_of_study'
+        verbose_name = 'Profil'
+        verbose_name_plural = 'Profils'
 
-    def __str__(self):
-        return self.name
-
-    name = models.CharField('Nom de la discipline', max_length=255)
-    group = models.CharField('Filière', max_length=255)
-
-
-class User(AbstractBaseUser, PermissionsMixin):
-    class Meta:
-        verbose_name = 'Utilisateur'
-        verbose_name_plural = 'Utilisateurs'
-        db_table = 'auth_user'
-
-    USERNAME_FIELD = 'email'
-    objects = UserManager()
-
-    # Generic fields
-    email = models.EmailField('Email', max_length=255, unique=True)
-    password = models.CharField('Mot de passe', max_length=255)
-
-    # Generic flags
-    is_active = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
-
-    # Demographics and address
-    # ------------------------
+    # Demographics and public profile
+    # -------------------------------
 
     first_name = models.CharField('Prénom', max_length=30)
     last_name = models.CharField('Nom', max_length=30)
 
-    birth_name = models.CharField(
-        "Nom de naissance", max_length=100, blank=True)
+    GENDER_CHOICES = (
+        ('m', 'Monsieur'),
+        ('f', 'Madame'))
+    gender = models.CharField(
+        "Genre", choices=GENDER_CHOICES, max_length=10,
+        blank=True, null=True)
 
-    phone_number = PhoneNumberField("Numéro de téléphone")
+    common_name = models.CharField(
+        "Nom d'usage (si différent)", max_length=100, blank=True, null=True)
 
-    address_line_1 = models.CharField("Ligne 1", max_length=200)
-    address_line_2 = models.CharField("Ligne 2", max_length=200, blank=True)
-    postal_code = models.CharField("Code postal", max_length=10)
-    city = models.CharField("Commune", max_length=50, blank=False)
-    state_province = models.CharField(
-        "State/Province", max_length=40, blank=True)
-    country = models.CharField("Pays", max_length=40, blank=False)
+    phone_number = PhoneNumberField(
+        "Numéro de téléphone", blank=True, null=True)
+
+    birth_date = models.DateField(
+        "Date de naissance", blank=True, null=True)
+
+    birth_place = models.CharField(
+        "Lieu de naissance", max_length=100, blank=True, null=True)
+
+    death_info = models.CharField(
+        "Informations de décès", max_length=200, blank=True, null=True)
+
+    website = models.URLField(
+        "Site web", blank=True, null=True)
+
+    phone_number_isvisible = models.NullBooleanField(
+        "Numéro de téléphone visible", default=True)
+    website_isvisible = models.NullBooleanField(
+        "Site web visible", default=True)
+    email_isvisible = models.NullBooleanField(
+        "Email visible", default=True)
 
     # Related to the ENS
     # ------------------
 
-    first_year = models.IntegerField("Année d'entrée à l'ENS")
+    entrance_year = models.IntegerField(
+        "Année d'entrée à l'ENS", null=True, blank=False)
 
     STATUS_SCHOOL_CHOICES = (
         ('normalien', 'élève normalien'),
-        ('etudiant', 'élève étudiant')
+        ('etudiant', 'étudiant normalien')
     )
     status_school = models.CharField(
         "Status à l'école", max_length=30,
-        choices=STATUS_SCHOOL_CHOICES)
+        choices=STATUS_SCHOOL_CHOICES, null=True, blank=False)
 
-    field = models.ForeignKey(
-        FieldOfStudy, verbose_name="Discipline d'entrée")
+    ENTRANCE_SCHOOL_CHOICES = (
+        ('ens_lyon', 'ENS de Lyon'),
+        ('ens_lsh', 'ENS LSH'),
+        ('fontenay', 'Fontenay-aux-Roses'),
+        ('st_cloud', 'St Cloud'),
+        ('fontenay__st_cloud', 'Fontenay / St Cloud')
+    )
+    entrance_school = models.CharField(
+        "École d'entrée", max_length=30,
+        choices=ENTRANCE_SCHOOL_CHOICES, null=True, blank=False)
+
+    entrance_field = models.CharField(
+        "Discipline d'entrée", max_length=200, null=True, blank=False)
 
     PROFESSIONAL_STATUS_CHOICES = (
         ('active', 'actif'),
@@ -118,9 +114,120 @@ class User(AbstractBaseUser, PermissionsMixin):
         "Justificatif de passage à l'ENS", upload_to='uploads/%Y/%m/%d/',
         blank=True, null=True)
 
+    # Utilities
+    # ---------
+
+    transfer_data = models.NullBooleanField(
+        "Transfert des données avec l'ENS de Lyon")
+
+    is_honorary = models.BooleanField("Membre honoraire", default=False)
+
+    do_not_contact = models.BooleanField("Ne pas contacter", default=False)
+
+    annuaire_papier = models.BooleanField(
+        "Recevoir l'annuaire en papier", default=False)
+    bulletin_papier = models.BooleanField(
+        "Recevoir le bulletin en papier", default=False)
 
     def __str__(self):
         return "{} {}".format(self.first_name, self.last_name)
+
+    def type_field(self):
+        undef = ['Auditeurs', 'Donateur / Etudiant', 'Etudiant', 'Inspecteur',
+                 'Second concours']
+
+        science_fields = [
+            'Biologie',  'Biologie, chimie, physique, sciences de la Terre',
+            'Chimie', 'Geologie', 'Informatique', 'Mathématiques',
+            'Mathématiques, physique', 'Mathématiques-informatique',
+            'Physique', 'Physique, chimie', 'Sciences',
+            'Sciences de la Vie / de la Terre']
+
+        litt_fields = [
+            'Arts', 'Etudiant LSH', 'Langues vivantes',
+            'Langues vivantes - Allemand', 'Langues vivantes - Anglais',
+            'Langues vivantes - Espagnol', 'Langues vivantes - Italien',
+            'Langues vivantes - Russe', 'Langues vivantes-Allemand',
+            'Langues vivantes-Anglais', 'Langues vivantes-Espagnol',
+            'Langues vivantes-Italien', 'Lettres',
+            'Lettres - Lettre classiques', 'Lettres - Lettre modernes',
+            'Lettres classiques', 'Lettres et arts', 'Lettres modernes',
+            'Sciences economiques et sociales', 'Sciences humaines',
+            'Sciences humaines - Histoire & géographie',
+            'Sciences humaines - Philosophie',
+            'Sciences humaines-géographie', 'Sciences humaines-histoire',
+            'Sciences humaines-philosophie',
+            'Sciences économiques et sociales', 'lettres', 'lettres et arts',
+            'sciences sociales']
+
+        if self.entrance_field in science_fields:
+            return 'S'
+        elif self.entrance_field in litt_fields:
+            return 'L'
+        else:
+            return ''
+
+    def nomenclature(self):
+        if self.entrance_school in ['ens_lyon', 'ens_de_lyon']:
+            school = 'LY'
+        elif self.entrance_school == 'fontenay':
+            school = 'FT'
+        elif self.entrance_school == 'st_clous':
+            school = 'ST'
+        else:
+            school = ''
+
+        field = self.type_field()
+        promo = str(self.entrance_year)[-2:]
+
+        return "{} {} {}".format(field, school, promo)
+
+
+class Address(models.Model):
+    class Meta:
+        verbose_name = "Adresse"
+        verbose_name_plural = "Adresses"
+
+    TYPE_CHOICES = (
+        ('private_postal', 'Personnelle (privée)'),
+        ('public_postal', 'Personnelle (publique)'),
+        ('public_non_postal', 'Professionnelle (publique)'),
+        ('private_forward', 'Adresse de contact (privée)')
+    )
+
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+
+    type = models.CharField("Type", choices=TYPE_CHOICES, max_length=30)
+    line_1 = models.CharField("Ligne 1", max_length=200)
+    line_2 = models.CharField("Ligne 2", max_length=200, blank=True)
+    postal_code = models.CharField("Code postal", max_length=30)
+    city = models.CharField("Commune", max_length=50, blank=False)
+    state_province = models.CharField(
+        "State/Province", max_length=40, blank=True)
+    country = models.CharField("Pays", max_length=40, blank=False)
+
+    def is_public(self):
+        return self.type in ['public_postal', 'public_non_postal']
+
+
+class User(AbstractBaseUser, PermissionsMixin):
+    class Meta:
+        verbose_name = 'Utilisateur'
+        verbose_name_plural = 'Utilisateurs'
+        db_table = 'auth_user'
+
+    USERNAME_FIELD = 'email'
+    objects = UserManager()
+
+    # Generic fields
+    email = models.EmailField('Email', max_length=255, unique=True)
+
+    # Generic flags
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
+
+    profile = models.OneToOneField(
+        Profile, null=True, verbose_name="Profil", related_name='user')
 
     @property
     def is_staff(self):
@@ -133,10 +240,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.is_admin
 
     def get_short_name(self):
-        return self.email
+        return self.profile.__str__()
 
     def get_full_name(self):
-        return self.__str__()
+        return self.profile.__str__()
 
 
 class Membership(models.Model):
@@ -145,18 +252,18 @@ class Membership(models.Model):
         verbose_name_plural = "Cotisations"
 
     def __str__(self):
-        return "Cotisation {} de {}".format(self.start_date.year, self.user)
+        return "Cotisation {} de {}".format(self.start_date.year, self.profile)
 
-    def compute_amount(self, user=None):
-        if user is None:
-            user = self.user
+    def compute_amount(self, profile=None):
+        if profile is None:
+            profile = self.profile
 
         active = self.membership_type == Membership.MEMBERSHIP_TYPE_ACTIVE
         retired = self.membership_type == Membership.MEMBERSHIP_TYPE_RETIRED
         youth = self.membership_type == Membership.MEMBERSHIP_TYPE_YOUTH
 
         # Up to four years of free membership
-        free_membership = self.start_date.year < user.first_year + 4
+        free_membership = self.start_date.year < profile.entrance_year + 4
 
         if free_membership:
             return 0
@@ -172,8 +279,8 @@ class Membership(models.Model):
             "Le type de cotisation {} n'est pas "
             "valide.".format(self.membership_type))
 
-    user = models.ForeignKey(
-        User, on_delete=models.PROTECT,
+    profile = models.ForeignKey(
+        Profile, on_delete=models.PROTECT,
         related_name='membership', verbose_name='Utilisateur')
 
     uid = models.UUIDField(
@@ -201,13 +308,14 @@ class Membership(models.Model):
     # --------------
 
     amount = models.DecimalField(
-        "Montant de la cotisation (€)", max_digits=5, decimal_places=2)
+        "Montant de la cotisation (€)", max_digits=5, decimal_places=2,
+        null=True, blank=False)
 
     payment_amount = models.DecimalField(
         "Montant réglé (€)", max_digits=5, decimal_places=2,
         blank=True, null=True)
 
-    payment_date = models.DateField(
+    payment_on = models.DateTimeField(
         "Date de réception", blank=True, null=True)
 
     PAYMENT_TYPE_BANK_TRANSFER = 'BANK_TRANSFER'
@@ -225,10 +333,7 @@ class Membership(models.Model):
     payment_reference = models.CharField(
         "Référence chèque ou virement", max_length=100, blank=True)
 
-    payment_first_name = models.CharField(
-        "Prénom (si différent)", max_length=100, blank=True)
-
-    payment_last_name = models.CharField(
+    payment_name = models.CharField(
         "Nom (si différent)", max_length=100, blank=True)
 
     # Membership duration
@@ -245,7 +350,7 @@ class Membership(models.Model):
         "Adhésion en couple", choices=IN_COUPLE_CHOICES, default=False)
 
     partner_name = models.CharField(
-        "Nom du conjoint", max_length=100, blank=True)
+        "Nom du conjoint", max_length=100, blank=True, null=True)
 
     MEMBERSHIP_TYPE_ACTIVE = 'active'
     MEMBERSHIP_TYPE_RETIRED = 'retired'
@@ -268,3 +373,14 @@ class Membership(models.Model):
 
     def is_transfer(self):
         return self.payment_type == Membership.PAYMENT_TYPE_BANK_TRANSFER
+
+
+    def send_confirmation_email(self):
+        mail.send(
+            self.profile.user.email,
+            'luc@lyon-normalesup.org',  # For development purposes
+            template='membership_submitted',
+            context={
+                'membership': self
+            },
+        )

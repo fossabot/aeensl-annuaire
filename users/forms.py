@@ -1,4 +1,4 @@
-from .models import Membership
+from .models import Membership, Profile, Address
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -7,19 +7,21 @@ from django.contrib.auth import authenticate
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, Div, HTML
 from crispy_forms.bootstrap import InlineRadios, PrependedText
+from dal import autocomplete
 
+
+from betterforms.multiform import MultiModelForm
 from phonenumber_field.widgets import PhoneNumberInternationalFallbackWidget
-from collections import defaultdict
-
 
 User = get_user_model()
 
 
 class UserLoginForm(forms.ModelForm):
-    password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
+    # password = forms.CharField(label="Mot de passe", widget=forms.PasswordInput)
 
     class Meta:
-        fields = ['email', 'password']
+        # fields = ['email', 'password']
+        fields = ['email']
         model = User
 
     def __init__(self, *args, **kwargs):
@@ -29,11 +31,11 @@ class UserLoginForm(forms.ModelForm):
         self.helper.form_tag = False
         self.helper.layout = Layout(
             'email',
-            PrependedText('password', 'Si déjà adhérent'),
+            # PrependedText('password', 'Si déjà adhérent'),
             Submit('submit', 'Étape suivante')
         )
 
-        self.fields['password'].required = False
+        # self.fields['password'].required = False
 
     def clean(self):
         data = self.cleaned_data
@@ -54,65 +56,71 @@ class UserLoginForm(forms.ModelForm):
             }, code='invalid')
 
 
-class UserForm(forms.ModelForm):
+class AddressForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = [
-            'first_name',
-            'last_name',
-            'birth_name',
-            'phone_number',
-            'first_year',
-            'field',
-            'professional_status',
-            'status_school',
-            'proof_school',
+        model = Address
+        fields = ['line_1', 'line_2', 'postal_code', 'city', 'country']
 
-            'address_line_1',
-            'address_line_2',
-            'postal_code',
-            'city',
-            'country',
-        ]
+    def __init__(self, *args, **kwargs):
+        super(AddressForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
+
+        self.helper.layout = Layout(
+            Fieldset(
+                'Adresse postale',
+                Field('line_1', css_class='autocomplete-address'),
+                'line_2',
+                Div(
+                    Div('postal_code', css_class='col-sm-2'),
+                    Div('city', css_class='col-sm-6'),
+                    Div('country', css_class='col-sm-4'),
+                    css_class='row'),
+            )
+        )
+
+
+# TODO: cache the queryset
+Q_fields = Profile.objects.values("entrance_field").distinct()
+ENTRANCE_CHOICES = [x['entrance_field'].title() for x in Q_fields if x['entrance_field'] is not None]
+ENTRANCE_CHOICES = sorted(ENTRANCE_CHOICES)
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['first_name', 'last_name', 'common_name', 'phone_number',
+                  'entrance_year', 'entrance_field', 'entrance_school',
+                  'professional_status', 'status_school', 'proof_school']
+
         widgets = {
             'phone_number': PhoneNumberInternationalFallbackWidget(),
         }
 
-    def __init__(self, *args, **kwargs):
-        super(UserForm, self).__init__(*args, **kwargs)
-        self.helper = FormHelper(self)
 
-        # Add <select> optgroups for field of study
-        field_choices = defaultdict(list)
-        field_choices['---------'] = '---------'
-        for f in self.fields['field'].queryset.exclude(group='MIGRATION_OLD'):
-            field_choices[f.group].append((f.id, f.name))
-        self.fields['field'].choices = list(field_choices.items())
+    entrance_field = forms.ChoiceField(
+        choices=zip(ENTRANCE_CHOICES, ENTRANCE_CHOICES),
+        label="Discipline d'entrée")
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_tag = False
 
         self.helper.layout = Layout(
             Fieldset(
                 'Informations personnelles',
                 'first_name',
                 'last_name',
-                'birth_name',
+                'common_name',
                 'phone_number'
             ),
 
             Fieldset(
-                'Adresse postale',
-                Field('address_line_1', css_class='autocomplete-address'),
-                'address_line_2',
-                Div(
-                    Div('postal_code', css_class='col-sm-2'),
-                    Div('city', css_class='col-sm-6'),
-                    Div('country', css_class='col-sm-4'),
-                    css_class='row'),
-            ),
-
-            Fieldset(
-                'Informations professionelles',
-                'first_year',
-                'field',
+                'Parcours à l\'ENS',
+                'entrance_year',
+                'entrance_field',
+                'entrance_school',
                 'status_school',
                 'professional_status',
                 HTML(
@@ -127,18 +135,29 @@ class UserForm(forms.ModelForm):
         )
 
 
+class ProfileAddressForm(MultiModelForm):
+    base_fields = {}
+
+    form_classes = {
+        'address': AddressForm,
+        'profile': ProfileForm,
+    }
+
+
 class MembershipForm(forms.ModelForm):
     class Meta:
         model = Membership
-        fields = [
-            'membership_type',
-            'payment_type',
-            'in_couple',
-            'partner_name'
-        ]
+        fields = ['membership_type', 'payment_type', 'in_couple',
+                  'partner_name']
+
         widgets = {
             'in_couple': forms.RadioSelect
         }
+
+    partner_name = forms.ModelChoiceField(
+        queryset=Profile.objects.all(), required=False,
+        widget=autocomplete.ModelSelect2(url='profile-autocomplete')
+    )
 
     def __init__(self, *args, **kwargs):
         super(MembershipForm, self).__init__(*args, **kwargs)
@@ -151,7 +170,9 @@ class MembershipForm(forms.ModelForm):
                 'membership_type',
 
                 Div(
-                    Div(InlineRadios('in_couple', template="crispy/radioselect_inline.html"), css_class='col-sm-3'),
+                    Div(InlineRadios('in_couple',
+                        template="crispy/radioselect_inline.html"),
+                        css_class='col-sm-3'),
                     Div('partner_name', css_class='col-sm-9'),
                     css_class='row')
             )

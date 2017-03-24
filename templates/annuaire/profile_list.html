@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% load querystring from django_tables2 %}
+{% load title from django_tables2 %}
+{% load crispy_forms_tags %}
+
+
+
+{% block content %}
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'annuaire_app:index' %}">Annuaire</a></li>
+  <li class="breadcrumb-item">Normaliens par promotion</li>
+  <li class="breadcrumb-item">{{ view.kwargs.year }}</li>
+</ol>
+
+<div class="row justify-content-center">
+<div class="col-md-10">
+
+
+  <form class="search-box form-inline my-4" method="GET" action="">
+    <!-- {% csrf_token %} -->
+    {% crispy filter.form filter.form.helper %}
+    <button class="btn btn-primary" type="submit">Rechercher</button>
+  </form>
+
+
+  <table class="table table-striped">
+  <thead>
+    <tr>
+      {% for column in table.columns %}
+          {% if column.orderable %}
+          <th {{ column.attrs.th.as_html }}>
+            <a href="{% querystring table.prefixed_order_by_field=column.order_by_alias.next %}">{{ column }}</a>
+          </th>
+          {% else %}
+          <th {{ column.attrs.th.as_html }}>aaa {{ column }}</th>
+          {% endif %}
+      {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+      {% for row in table.page.object_list|default:table.rows %} {# support pagination #}
+        {% block table.tbody.row %}
+        <tr class="{% cycle "odd" "even" %}">
+            {% for column, cell in row.items %}
+                <td {{ column.attrs.td.as_html }}>{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endblock table.tbody.row %}
+      {% empty %}
+        {% if table.empty_text %}
+        {% block table.tbody.empty_text %}
+        <tr><td colspan="{{ table.columns|length }}">{{ table.empty_text }}</td></tr>
+        {% endblock table.tbody.empty_text %}
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+  {% if is_paginated %}
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+      {% if not page_obj.has_previous %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1">
+      {% elif page_obj.previous_page_number == 1 %}
+        <li class="page-item">
+          <a class="page-link" href="?page=1">
+      {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+      {% endif %}
+          Précédent</a>
+        </li>
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if num == page_obj.number %}
+        <li class="page-item active">
+          <a class="page-link" href="#">{{ num }}<span class="sr-only"> (actuel)</span></a>
+        </li>
+        {% else %}
+        <li class="page-item">
+        {% if num == 1 %}
+          <a class="page-link" href="?page=1">{{ num }}</a>
+        {% else %}
+          {% if num|add:"-3" <= page_obj.number and page_obj.number <= num|add:"3" %}
+          <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+          {% endif %}
+        {% endif %}
+        </li>
+        {% endif %}
+      {% endfor %}
+
+        {% if not page_obj.has_next %}
+        <li class="page-item disabled">
+          <a class="page-link" href="#" tabindex="-1">
+        {% else %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+        {% endif %}
+          Suivant</a>
+        </li>
+      </ul>
+    </nav>
+{% endif %}
+</div>
+</div>
+{% endblock %}

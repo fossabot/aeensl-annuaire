@@ -1,3 +1,4 @@
+@import "../../node_modules/select2/dist/css/select2";
 @import "../../node_modules/bootstrap/dist/css/bootstrap";
 @import "../../node_modules/intl-tel-input/src/css/intlTelInput";
 
@@ -42,7 +43,7 @@ section.content-block {
 
 .main-header {
     h2 {
-        margin-bottom: 1rem; 
+        margin-bottom: 1rem;
     }
     p {
         font-weight: 300;

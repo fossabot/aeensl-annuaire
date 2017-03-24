@@ -2,26 +2,36 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth.decorators import login_required
 
-from django.views.generic.base import RedirectView
-from users.views import RegistrationWizard, MembershipDetailView, UserListView, UserDetailView, CurrentUserDetailView
+from users.views import RegistrationWizard, MembershipDetailView, index, ProfileAutocomplete
+
+
+renew_view = login_required(RegistrationWizard.as_view(condition_dict={
+    "login": False
+}))
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^accounts/', include('allauth.urls')),
-    url(r'^users/me/', CurrentUserDetailView.as_view(), name="current_user_profile"),
-    url(r'^users/(?P<pk>\d+)/$', UserDetailView.as_view(), name="user_profile"),
-    url(r'^users/$', UserListView.as_view(), name="user_list"),
+    url(r'^annuaire/', include('annuaire_app.urls')),
 
+    # url(r'^register-new/$', RegistrationView.as_view(), name='register_new'),
     url(r'^register/$', RegistrationWizard.as_view(), name='register'),
+    url(r'^register/renew/$', renew_view, name='register_renew'),
     url(
         r'^cotisations/(?P<slug>[0-9a-z-]+)/$',
         MembershipDetailView.as_view(),
         name='membership-detail'),
 
+    # Autocomplete API
+    url(r'^profile-autocomplete/$',
+        ProfileAutocomplete.as_view(),
+        name='profile-autocomplete'),
+
     url(
         r'^$',
-        RedirectView.as_view(url='register/', permanent=False),
+        index,
         name='index')
 ]
 

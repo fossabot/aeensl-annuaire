@@ -13,6 +13,9 @@ django-post_office
 django-crispy-forms
 django-phonenumber-field
 django-formtools
+django-betterforms
+django-filter
+django_tables2
 
 # Serving assets
 django-compressor-toolkit

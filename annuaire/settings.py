@@ -31,9 +31,7 @@ INSTALLED_APPS = [
     'compressor',  # take care of static files
     'compressor_toolkit',  # addon for django-compressor
     'post_office',
-
-    # Local apps:
-    'users',
+    'django_extensions',
 
     'crispy_forms',  # Form layouts
     'bootstrapform',
@@ -42,25 +40,33 @@ INSTALLED_APPS = [
     'allauth.account',
     'phonenumber_field',  # Support for phone numbers
     'formtools',  # multipage wizard forms
+    'betterforms',
     'dal',  # django-autocomplete-light
     'dal_select2',
+    'import_export',
+    'django_tables2',
 
     'solo',
 
     # And add admin after django-autocomplete-light:
     'django.contrib.admin',
+
+    # Local apps:
+    'users',
+    'annuaire_app'
 ]
 
 if DEBUG:
     INSTALLED_APPS += ['whitenoise.runserver_nostatic']
 
 MIDDLEWARE = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+
     # Log 404 errors using Sentry
     'raven.contrib.django.raven_compat.middleware.Sentry404CatchMiddleware',
 
     # Default Django middlewares:
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -108,6 +114,7 @@ DATABASES['default']['ATOMIC_REQUESTS'] = True
 # --------------------------------------
 
 EMAIL_BACKEND = 'post_office.EmailBackend'
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "[AE ENS]"
 
 
 # STORAGE CONFIGURATION
@@ -129,7 +136,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
 
 ACCOUNT_ALLOW_REGISTRATION = False  # No manual registration
-LOGIN_REDIRECT_URL = 'current_user_profile'
+LOGIN_REDIRECT_URL = 'annuaire_app:current_profile'
 
 # Custom user app defaults
 AUTH_USER_MODEL = 'users.User'

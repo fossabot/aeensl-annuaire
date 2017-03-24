@@ -9,25 +9,29 @@
 {% block content %}
 
 <div class="row justify-content-center">
-<div class="col-md-6">
+<div class="card-deck col-md-10">
+  <div class="card card-outline-secondary">
+    <div class="card-block">
+      <h3 class="card-title">Nouvelle adhésion</h3>
+      <p class="card-text">Merci d'entrer une adresse email valide. Cette adresse sera utilisée pour
+        vous tenir informé de l'état de votre adhésion.</p>
 
-<h3>Adhésion à l'association</h3>
-<p>Veuillez entrer une adresse email valide. Cette adresse sera utilisée pour vous tenir informé de l'état de votre adhésion. Si vous avez déjà adhéré à l'association, utilisez vos identifiants pour ré-adhérer.</p>
+      <form action="" method="POST">
+      {{ wizard.management_form }}
+      {% crispy wizard.form wizard.form.helper %}
+      </form>
+    </div>
+  </div>
 
-<div class="alert alert-warning" role="alert">
-  <h4 class="alert-heading">
-    Migration de l'annuaire
-  </h4>
-  <p>Cette plateforme permettra bientôt  de se connecter en utilisant le mot de
-  passe de l'annuaire. Mise en place prévue en <strong>février 2017</strong>.
-  Pour l'instant, merci d'entrer uniquement votre adresse email.
-</p>
-</div>
-
-<form action="" method="POST">
-{{ wizard.management_form }}
-{% crispy wizard.form wizard.form.helper %}
-</form>
+  <div class="card card-outline-primary">
+    <div class="card-block">
+      <h3 class="card-title">Ré-adhésion</h3>
+      <p class="card-text">Si vous avez déjà adhéré à l'association, merci de vous connecter directement
+      avec votre adresse email.</p>
+      <a class="btn btn-primary" href="{% url 'account_login' %}">Se connecter</a>
+      <a class="btn btn-secondary" href="{% url 'account_reset_password' %}">Mot de passe oublié</a>
+    </div>
+  </div>
 
 </div>
 

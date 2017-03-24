@@ -1,101 +1,146 @@
-from django.shortcuts import render
-from django.contrib.auth import authenticate
-
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.core.urlresolvers import set_script_prefix
-from django.urls import reverse
+from django.db import transaction
 
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView
+from django.views.generic.edit import CreateView
+
+from django.shortcuts import render, redirect, reverse
+from django.contrib import auth
+
 
 from formtools.wizard.views import SessionWizardView
-from post_office import mail
+from dal import autocomplete
 
-from users.forms import UserLoginForm, UserForm, MembershipForm
-from users.models import Membership, User
+# Local forms and models
+from users.forms import UserLoginForm, ProfileForm, MembershipForm, ProfileAddressForm, AddressForm
+from users.models import Membership, User, Profile, Address
 
 
-TEMPLATES = ["form_login.html", "form_user.html", "form_membership.html"]
+def index(request, **kwargs):
+    if request.user.is_authenticated():
+        return redirect("annuaire_app:index")
+    else:
+        return redirect("register")
+
+
+class ProfileAutocomplete(autocomplete.Select2QuerySetView):
+    def get_queryset(self):
+        from django.db.models import Q
+
+        qs = Profile.objects
+
+        if self.q:
+            Q_first_name = Q(first_name__istartswith=self.q)
+            Q_last_name = Q(last_name__istartswith=self.q)
+            qs = qs.filter(Q_first_name | Q_last_name)
+
+        return qs
+
+
+class RegistrationView(CreateView):
+    model = User
+    fields = ['first_name', 'last_name']
+    template_name = "users/form.html"
 
 
 class RegistrationWizard(SessionWizardView):
-    form_list = [UserLoginForm, UserForm, MembershipForm]
+    form_list = [
+        ("login", UserLoginForm),
+        ("user_info", ProfileAddressForm),
+        ("membership", MembershipForm)
+    ]
+
+    templates = {
+        'login': "form_login.html",
+        'user_info': "form_user.html",
+        'membership': "form_membership.html"
+    }
+
     file_storage = FileSystemStorage(location=settings.MEDIA_TMP)
 
     def get_template_names(self):
-        return [TEMPLATES[int(self.steps.current)]]
+        return [self.templates[self.steps.current]]
 
     def get_form_initial(self, step):
-        if step == '1':
-            step_0 = self.get_cleaned_data_for_step('0')
-            u = authenticate(
-                username=step_0['email'],
-                password=step_0['password'])
+        u = None
+        if step == 'user_info':
+            if not isinstance(self.request.user, auth.models.AnonymousUser):
+                u = self.request.user
+            else:
+                step_login = self.get_cleaned_data_for_step('login')
+                if step_login:
+                    u = auth.authenticate(
+                        username=step_login.get('email'),
+                        password=step_login.get('password'))
 
             if u:
-                return u.__dict__
+                return {
+                    'profile': u.profile.__dict__,
+                    'address': u.profile.address_set.all()[0].__dict__
+                }
 
-    def done(self, form_list, **kwargs):
+    @transaction.atomic
+    def done(self, form_list, form_dict, **kwargs):
         """
         Gather the data from the three forms. If the user already exists,
         update the profile, if not create a new user. Then add a new membership.
         """
-        form_list = list(form_list)  # Convert view to list
+        login_step = self.get_cleaned_data_for_step('login')
+        address_step = self.get_cleaned_data_for_step('user_info')['address']
+        profile_step = self.get_cleaned_data_for_step('user_info')['profile']
+        membership_step = self.get_cleaned_data_for_step('membership')
 
-        step_0 = self.get_cleaned_data_for_step('0')
-        step_1 = self.get_cleaned_data_for_step('1')
+        # Renew membership for current user
+        if login_step is None:
+            u = self.request.user
 
-        u = authenticate(
-            username=step_0['email'],
-            password=step_0['password'])
-
-        if u:
-            # Update the user profile with the step 1
-            user_form = UserForm(step_1, instance=u)
-            user_form.save()
+            # Update the user profile
+            profile_form = ProfileForm(profile_step, instance=u.profile)
+            profile_form.save()
+            u.profile = profile_form
+            u.save()
         else:
-            # Create a new user from steps 0 and 1
-            u = form_list[1].save(commit=False)
-            u.email = step_0['email']
-            u.is_active = False  # Not registered yet
+            # Create a new user from steps 'login' & 'profile'
+            u = User(email=login_step['email'])
+            u.is_active = False  # Not activated yet
+            p = Profile(**profile_step)
+            u.profile = p
+
+            p.save()
             u.save()
 
+        # Create or update address info
+        addresses = u.profile.address_set.all()
+        if len(addresses) > 0:
+            add = addresses[0]
+            add = AddressForm(address_step, instance=addresses[0])
+        else:
+            add = Address(**address_step)
+            add.profile = u.profile
+        add.save()
+
         # Create a new Membership object
-        membership = form_list[2].save(commit=False)
-        membership.user = u
+        membership = Membership(**membership_step)
+        membership.profile = u.profile
         membership.start_date = membership.next_start_date()
         membership.amount = membership.compute_amount()
         membership.duration = 1  # valid for one year
         membership.save()
 
-        mail.send(
-            u.email,
-            'luc@lyon-normalesup.org',  # For development purposes
-            template='membership_submitted',
-            context={
-                'membership': membership
-            },
-        )
+        # Send a confirmation email
+        membership.send_confirmation_email()
+
+        mb_url = self.request.build_absolute_uri(
+            reverse('membership-detail', args=[membership.uid]))
 
         return render(self.request, 'form_done.html', {
             'user': u,
             'cotisation': membership,
+            'url': mb_url
         })
 
 
 class MembershipDetailView(DetailView):
     slug_field = 'uid'
     queryset = Membership.objects.all()
-
-
-class UserDetailView(DetailView):
-    queryset = User.objects.all()
-
-
-class CurrentUserDetailView(UserDetailView):
-    def get_object(self):
-        return self.request.user
-
-
-class UserListView(ListView):
-    model = User

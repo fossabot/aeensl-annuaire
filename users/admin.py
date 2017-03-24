@@ -3,18 +3,28 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import admin
 from django import forms
-
 from django.utils.translation import ugettext as _
 
-from solo.admin import SingletonModelAdmin
-
+from django_reverse_admin import ReverseModelAdmin
+import import_export
 from dateutil.relativedelta import relativedelta
 
-from users.models import User, Membership, FieldOfStudy, SiteConfiguration
+from users.models import User, Membership, Profile, Address
+
+
+from django.utils.encoding import force_text
+
+import logging
+log = logging.getLogger(__name__)
 
 
 class MembershipInline(admin.StackedInline):
     model = Membership
+    extra = 0
+
+
+class AddressInline(admin.StackedInline):
+    model = Address
     extra = 0
 
 
@@ -28,6 +38,10 @@ class UserCreationForm(forms.ModelForm):
         model = User
         fields = ('email', )
         exclude = ('username', )
+
+    def is_valid(self):
+        log.info(force_text(self.errors))
+        return super(UserCreationForm, self).is_valid()
 
     def clean_password2(self):
         # Check that the two password entries match
@@ -61,58 +75,90 @@ class UserChangeForm(forms.ModelForm):
         # Regardless of what the user provides, return the initial value.
         # This is done here, rather than on the field, because the
         # field does not have access to the initial value
-        return self.initial["password"]
+        return self.initial.get("password")
 
 
-class FieldOfStudyAdmin(admin.ModelAdmin):
-    list_display = ('group', 'name')
+# class FieldOfStudyAdmin(admin.ModelAdmin):
+#     list_display = ('group', 'name')
 
 
-class UserAdmin(BaseUserAdmin):
-    list_display = ('email', 'first_name', 'last_name', 'first_year',
-                    'membership', 'is_admin', 'is_active')
-    list_filter = ('is_admin', )
+class UserResource(import_export.resources.ModelResource):
+    class Meta:
+        model = User
 
-    form = UserChangeForm
-    add_form = UserCreationForm
 
-    search_fields = ('email',)
-    ordering = ('email',)
+class UserAdmin(BaseUserAdmin, ReverseModelAdmin):
+    class Meta:
+        exclude = ('username', )
+
+    list_display = ('email', 'profile', 'is_admin', 'is_active')
+    list_filter = ('is_admin', 'is_active', )
+    ordering = ('email', )
+
+    search_fields = ('email', )
 
     fieldsets = [
-         (None, {'fields': ['email', 'password']}),
-         ('Informations personnelles', {'fields': [
-            'first_name',
-            'last_name',
-            'birth_name',
-            'phone_number',
-            'address_line_1',
-            'address_line_2',
-            'postal_code',
-            'city',
-            'state_province',
-            'country'
-         ]}),
-         ('Informations professionnelles', {'fields': [
-            'first_year',
-            'status_school',
-            'field',
-            'professional_status',
-            'proof_school'
-         ]}),
-         ('Permissions', {'fields': [
-            'is_admin',
-            'is_active',
-            'groups',
-            'is_superuser'
+        (None, {'fields': [
+            'email',
+            'password',
+        ]}),
+        ('Permissions', {'fields': [
+           'is_admin',
+           'is_active',
+           'is_superuser'
         ]})
     ]
 
+    inline_type = 'stacked'
+    inline_reverse = [
+        'profile',
+    ]
+
+    form = UserChangeForm
+    add_form = UserCreationForm
     add_fieldsets = fieldsets.copy()
     add_fieldsets[0] = (None, {
         'classes': ('wide',),
         'fields': ('email', 'password', 'password2')}
     )
+
+
+class ProfileAdmin(admin.ModelAdmin):
+    # resource_class = UserResource
+
+    list_display = ('user', 'first_name', 'last_name', 'entrance_year',
+                    'membership', )
+
+    search_fields = ('user__email', 'first_name', 'last_name', 'entrance_year')
+    ordering = ('user',)
+    inlines = (AddressInline, )
+
+    fieldsets = [
+        #  (None, {'fields': ['user']}),
+         ('Informations personnelles', {'fields': [
+            'first_name',
+            'last_name',
+            'common_name',
+            'gender',
+            'phone_number',
+         ]}),
+         ('Parcours à l\'ENS et carrière', {'fields': [
+            'entrance_year',
+            'status_school',
+            'entrance_field',
+            'professional_status',
+            'proof_school'
+         ]}),
+         ('Administratif', {'fields': [
+            'transfer_data',
+            'is_honorary',
+            'annuaire_papier',
+            'bulletin_papier'
+         ]})
+    ]
+
+    def user(self, obj):
+        return obj.user
 
     def membership(self, obj):
         last = obj.membership.last()
@@ -125,36 +171,42 @@ class UserAdmin(BaseUserAdmin):
     membership.short_description = "Cotisation jusqu'au"
 
 
-class MembershipAdmin(admin.ModelAdmin):
+class MembershipResource(import_export.resources.ModelResource):
+    class Meta:
+        model = Membership
+
+
+class MembershipAdmin(import_export.admin.ImportExportModelAdmin):
+    resource_class = MembershipResource
+
     list_display = ('utilisateur', 'uid', 'status', 'created_on', 'start_date')
     list_filter = ('status', 'membership_type')
     list_editable = ('status', )
-    search_fields = ('user__email', 'user__first_name', 'user__last_name', 'uid')
+    search_fields = ('profile__user__email', 'profile__first_name', 'profile__last_name', 'uid')
 
     fieldsets = [
         (None, {
-            'fields': ['user', 'status', 'created_on', 'start_date',
+            'fields': ['profile', 'status', 'created_on', 'start_date',
                        'duration', 'in_couple', 'partner_name',
                        'membership_type']
         }),
         ('Paiement', {
-            'fields': ['amount', 'payment_amount', 'payment_date',
+            'fields': ['amount', 'payment_amount', 'payment_on',
                        'payment_type', 'payment_bank', 'payment_reference',
-                       'payment_first_name', 'payment_last_name']
+                       'payment_name']
         })
     ]
     readonly_fields = ('created_on', )
 
     def utilisateur(self, obj):
-        return obj.user
+        return obj.profile
 
 
 # Update visible models and admin interface parameters
 
 admin.site.register(User, UserAdmin)
+admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Membership, MembershipAdmin)
-admin.site.register(FieldOfStudy, FieldOfStudyAdmin)
+# admin.site.register(FieldOfStudy, FieldOfStudyAdmin)
 
 admin.site.unregister(Site)
-admin.site.site_header = "Administration de l'annuaire"
-admin.site.register(SiteConfiguration, SingletonModelAdmin)

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+
+<div class="row justify-content-center">
+
+<div class="col-md-3">
+  <h5 class="my-2">Rechercher un normalien</h5>
+  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente labore recusandae aliquid nobis voluptates deserunt laudantium voluptatibus doloremque sit consequatur numquam quam hic exercitationem, blanditiis! Impedit labore, quas quisquam ducimus.</p>
+
+</div>
+
+<div class="col-md-9">
+
+<h3 class="my-2">Normaliens par promotion</h3>
+
+<div class="d-flex flex-wrap">
+{% for promo, count in counts_promo %}
+  <div class="card card-outline-primary w-25 my-2 mr-4">
+    <div class="card-block">
+      <h4 class="card-title">
+        <a href="{% url 'annuaire_app:promo_list' promo %}">Promo {{promo}}</a>
+      </h4>
+      <h6 class="card-subtitle mb-2 text-muted">{{count}} personnes</h6>
+      <!-- <a href="#" class="card-link">Card link</a>
+      <a href="#" class="card-link">Another link</a> -->
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

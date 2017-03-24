@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% load static %}
+
+{% block content %}
+{% verbatim %}
+<div id="app-2">
+</div>
+{% endverbatim %}
+
+<script type="text/javascript" src="{% static "dist/build.js" %}"></script>
+<!-- <script src="https://unpkg.com/vue/dist/vue.js"></script>
+<script src="https://unpkg.com/bootstrap-vue/dist/bootstrap-vue.js"></script>
+<script src="https://unpkg.com/vee-validate@2.0.0-beta.22"></script> -->
+
+<!-- <script src="https://unpkg.com/vee-validate@2.0.0-beta.22/dist/locale/fr.js" charset="utf-8"></script> -->
+<script>
+// Vue.use(VeeValidate, {'locale': 'fr'});
+// Vue.use(BootstrapVue);
+
+// var app2 = new Vue({
+//   el: '#app-2',
+//   data: {
+//     form: {
+//       name: '',
+//       region: '',
+//       date1: '',
+//       date2: '',
+//       delivery: false,
+//       type: [],
+//       resource: '',
+//       desc: ''
+//     }
+//   }
+// })
+</script>
+{% endblock %}

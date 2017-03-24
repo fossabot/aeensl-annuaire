@@ -115,6 +115,8 @@ DATABASES['default']['ATOMIC_REQUESTS'] = True
 
 EMAIL_BACKEND = 'post_office.EmailBackend'
 ACCOUNT_EMAIL_SUBJECT_PREFIX = "[AE ENS]"
+EMAIL_SUBJECT_PREFIX = "[AE ENS]"
+DEFAULT_FROM_EMAIL = "webmestre@lyon-normalesup.org"
 
 
 # STORAGE CONFIGURATION

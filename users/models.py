@@ -41,8 +41,9 @@ class Profile(models.Model):
     last_name = models.CharField('Nom', max_length=30)
 
     GENDER_CHOICES = (
+        ('f', 'Madame'),
         ('m', 'Monsieur'),
-        ('f', 'Madame'))
+        ('na', 'Autre'))
     gender = models.CharField(
         "Genre", choices=GENDER_CHOICES, max_length=10,
         blank=True, null=True)
@@ -79,11 +80,11 @@ class Profile(models.Model):
         "Année d'entrée à l'ENS", null=True, blank=False)
 
     STATUS_SCHOOL_CHOICES = (
-        ('normalien', 'élève normalien'),
-        ('etudiant', 'étudiant normalien')
+        ('normalien', 'Élève normalien'),
+        ('etudiant', 'Étudiant normalien')
     )
     status_school = models.CharField(
-        "Status à l'école", max_length=30,
+        "Statut à l'école", max_length=30,
         choices=STATUS_SCHOOL_CHOICES, null=True, blank=False)
 
     ENTRANCE_SCHOOL_CHOICES = (
@@ -101,10 +102,10 @@ class Profile(models.Model):
         "Discipline d'entrée", max_length=200, null=True, blank=False)
 
     PROFESSIONAL_STATUS_CHOICES = (
-        ('active', 'actif'),
-        ('retired', 'retraité'),
-        ('student', 'étudiant'),
-        ('inactive', 'sans emploi')
+        ('active', 'Actif'),
+        ('retired', 'Retraité'),
+        ('student', 'Étudiant'),
+        ('inactive', 'Sans emploi')
     )
     professional_status = models.CharField(
         "Situation professionnelle actuelle", max_length=30,

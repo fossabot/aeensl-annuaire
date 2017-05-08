@@ -4,6 +4,8 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
 
+from django.db.models.fields import BLANK_CHOICE_DASH
+
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Fieldset, Submit, Div, HTML
 from crispy_forms.bootstrap import InlineRadios, PrependedText
@@ -89,7 +91,7 @@ ENTRANCE_CHOICES = sorted(ENTRANCE_CHOICES)
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['first_name', 'last_name', 'common_name', 'phone_number',
+        fields = ['gender', 'first_name', 'last_name', 'common_name', 'phone_number',
                   'entrance_year', 'entrance_field', 'entrance_school',
                   'professional_status', 'status_school', 'proof_school']
 
@@ -97,6 +99,10 @@ class ProfileForm(forms.ModelForm):
             'phone_number': PhoneNumberInternationalFallbackWidget(),
         }
 
+    gender = forms.ChoiceField(
+        widget=forms.Select(attrs={'class': 'form-check-inline'}),
+        choices=list(Profile.GENDER_CHOICES),
+        label='Raison sociale')
 
     entrance_field = forms.ChoiceField(
         choices=zip(ENTRANCE_CHOICES, ENTRANCE_CHOICES),
@@ -110,9 +116,13 @@ class ProfileForm(forms.ModelForm):
         self.helper.layout = Layout(
             Fieldset(
                 'Informations personnelles',
+                InlineRadios('gender', template="crispy/radioselect_inline.html"),
                 'first_name',
-                'last_name',
-                'common_name',
+                Div(
+                    Div('last_name', css_class="col-sm-8"),
+                    Div('common_name', css_class='col-sm-4'),
+                    css_class='row'),
+
                 'phone_number'
             ),
 

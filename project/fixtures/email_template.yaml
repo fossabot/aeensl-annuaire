@@ -1,0 +1,27 @@
+- model: post_office.emailtemplate
+  pk: 1
+  fields: {name: membership_submitted, description: '', created: !!timestamp '2017-01-15
+      22:30:11.555107+00:00', last_updated: !!timestamp '2017-01-16 21:01:18.934404+00:00',
+    subject: "Demande d'adh\xE9sion \xE0 l'AE ENS", content: "Cher(e) camarade,\r\n\
+      \r\nNous avons bien re\xE7u ta demande d\u2019adh\xE9sion ou de renouvellement\
+      \ et t\u2019en remercions. \r\nAfin de la valider, merci de t\u2019acquitter\
+      \ de ta cotisation ({{ membership.amount }} \u20AC) par {{ membership.get_payment_type_display\
+      \ }}.\r\n\r\nTu peux suivre le paiement de ta cotisation directement sur notre\
+      \ site (http://adherent.lyon-normalesup.org{% url 'membership-detail' membership.uid\
+      \ %}).\r\n\r\nAu plaisir de te rencontrer,\r\nBien cordialement,\r\n\r\nLe tr\xE9\
+      sorier de l\u2019AE ENS\r\nTwitter : @AE_ENS\r\nFacebook : www.facebook.com/aeensl",
+    html_content: "<html>\r\n    <head>\r\n        <title>Demande d'adh\xE9sion \xE0\
+      \ l'AE ENS</title>\r\n    </head>\r\n    <body>\r\n        <table>\r\n     \
+      \       <tr>\r\n                <td>\r\n\r\n<p>Cher(e) camarade,</p>\r\n\r\n\
+      <p>Nous avons bien re\xE7u ta demande d\u2019adh\xE9sion ou de renouvellement\
+      \ et t\u2019en remercions. \r\nAfin de la valider, merci de t\u2019acquitter\
+      \ de ta cotisation ({{ membership.amount }} \u20AC) par {{ membership.get_payment_type_display\
+      \ }}.</p>\r\n\r\n<p>Tu peux suivre le paiement de ta cotisation directement\
+      \ <a href=\"http://adherent.lyon-normalesup.org{% url 'membership-detail' membership.uid\
+      \ %}\" target=\"_blank\">sur notre site</a>.</p>\r\n\r\n<p>Au plaisir de te\
+      \ rencontrer,<br>\r\nBien cordialement,</p>\r\n\r\n<p>Le tr\xE9sorier de l\u2019\
+      AE ENS</p>\r\nTwitter : <a href=\"https://twitter.com/AE_ENS\" target=\"_blank\"\
+      >@AE_ENS</a><br />\r\nFacebook : <a href=\"https://facebook.com/aeensl\" target=\"\
+      _blank\">www.facebook.com/aeensl</a></p>\r\n\r\n                </td>\r\n  \
+      \          </tr>\r\n        </table>\r\n    </body>\r\n</html>", language: '',
+    default_template: null}

@@ -18,7 +18,6 @@ django-filter
 django_tables2
 django-import-export
 django_extensions
-django-reverse-admin
 git+https://github.com/anziem/django_reverse_admin.git
 
 # Serving assets

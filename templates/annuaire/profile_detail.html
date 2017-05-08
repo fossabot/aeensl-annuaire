@@ -3,9 +3,9 @@
 {% block content %}
 
 <ol class="breadcrumb">
-  <li class="breadcrumb-item"><a href="{% url 'annuaire_app:index' %}">Annuaire</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'annuaire:index' %}">Annuaire</a></li>
   <li class="breadcrumb-item">Normalien par promotion</li>
-  <li class="breadcrumb-item"><a href="{% url 'annuaire_app:promo_list' object.entrance_year %}">{{ object.entrance_year}}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'annuaire:promo_list' object.entrance_year %}">{{ object.entrance_year}}</a></li>
   <li class="breadcrumb-item active">{{ object }} <span class="badge badge-primary">{{object.nomenclature}}</span></li>
 </ol>
 

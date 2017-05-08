@@ -19,7 +19,7 @@ from users.models import Membership, User, Profile, Address
 
 def index(request, **kwargs):
     if request.user.is_authenticated():
-        return redirect("annuaire_app:index")
+        return redirect("annuaire:index")
     else:
         return redirect("register")
 

@@ -1,7 +1,7 @@
 from django.conf.urls import url
-from annuaire_app import views
+from annuaire import views
 
-app_name = 'annuaire_app'
+app_name = 'annuaire'
 urlpatterns = [
     url(r'^$', views.AnnuaireView.as_view(), name='index'),
     url(r'^profile/me/',

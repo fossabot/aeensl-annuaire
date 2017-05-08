@@ -54,8 +54,8 @@ class ProfileTable(tables.Table):
         fields = ('first_name', 'last_name', 'entrance_school',
                   'entrance_year', 'entrance_field')
 
-    first_name = tables.LinkColumn("annuaire_app:user_profile", args=[tables.utils.A('pk')], verbose_name="Prénom")
-    last_name = tables.LinkColumn("annuaire_app:user_profile", args=[tables.utils.A('pk')], verbose_name="Nom")
+    first_name = tables.LinkColumn("annuaire:user_profile", args=[tables.utils.A('pk')], verbose_name="Prénom")
+    last_name = tables.LinkColumn("annuaire:user_profile", args=[tables.utils.A('pk')], verbose_name="Nom")
     entrance_school = tables.Column(verbose_name="École")
     entrance_year = tables.Column(verbose_name="Année d'entrée")
     entrance_field = tables.Column(verbose_name="Discipline d'entrée")

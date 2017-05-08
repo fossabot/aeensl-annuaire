@@ -28,23 +28,23 @@
             </li>
             {% endif %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'annuaire_app:index' %}">Accès à l'annuaire</a>
+              <a class="nav-link" href="{% url 'annuaire:index' %}">Accès à l'annuaire</a>
             </li>
 
             {% if user.is_authenticated %}
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'annuaire_app:index' %}">Normaliens par promo</a>
+              <a class="nav-link" href="{% url 'annuaire:index' %}">Normaliens par promo</a>
             </li>
 
             <li class="nav-item active ml-auto">
               <a class="nav-link btn-outline-primary btn" href="{% url 'register_renew' %}">Ré-adhérer</a>
             </li>
             <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="{% url 'annuaire_app:current_profile' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <a class="nav-link dropdown-toggle" href="{% url 'annuaire:current_profile' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               Mon profil
               </a>
               <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="{% url 'annuaire_app:current_profile' %}">Mon profil public</a>
+                <a class="dropdown-item" href="{% url 'annuaire:current_profile' %}">Mon profil public</a>
                 <a class="dropdown-item" href="{% url 'account_change_password' %}">Modifier mon mot de passe</a>
                 <a class="dropdown-item" href="{% url 'account_logout' %}">Déconnexion</a>
               </div>

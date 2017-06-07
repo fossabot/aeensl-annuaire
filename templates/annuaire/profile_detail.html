@@ -5,9 +5,13 @@
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item"><a href="{% url 'annuaire:index' %}">Annuaire</a></li>
+  {% if object.entrance_year %}
   <li class="breadcrumb-item"><a href="{% url 'annuaire:all_promos' %}">Normaliens par promotion</a></li>
   <li class="breadcrumb-item"><a href="{% url 'annuaire:promo_list' object.entrance_year %}">{{ object.entrance_year}}</a></li>
-  <li class="breadcrumb-item active">{{ object }} <span class="badge badge-primary">{{object.nomenclature}}</span></li>
+  <li class="breadcrumb-item active">{{ object }}<span class="badge badge-primary">{{object.nomenclature}}</span></li>
+  {% else %}
+  <li class="breadcrumb-item active">{{ object }}</li>
+  {% endif %}
 </ol>
 
 <div class="row justify-content-center">
@@ -48,7 +52,7 @@
   <div class="list-group">
     <div class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">Entrée en {{object.entrance_year }} à l'ENS de Lyon</h5>
+        <h5 class="mb-1">Entrée en {{object.entrance_year }}, {{object.get_entrance_school_display}}</h5>
       </div>
       <p class="mb-1">sur voie « {{object.entrance_field}} »</p>
     </div>

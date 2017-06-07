@@ -21,7 +21,13 @@
 
   <ul class="list-group">
   {% for p in object_list %}
-  <li class="list-group-item"><a href="{% url 'annuaire:user_profile' p.id %}">{{p}}</a>&nbsp;<span class="badge badge-primary">{{p.nomenclature}}</span></li>
+  <li class="list-group-item">
+    <a href="{% url 'annuaire:user_profile' p.id %}">
+      {{p}}</a>&nbsp;
+      {% if p.nomenclature %}
+      <span class="badge badge-primary">{{p.nomenclature}}</span>
+      {% endif %}
+    </li>
   {% endfor %}
   </ul>
 

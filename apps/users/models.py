@@ -180,9 +180,10 @@ class Profile(models.Model):
             school = ''
 
         field = self.type_field()
-        promo = str(self.entrance_year)[-2:]
 
-        return "{} {} {}".format(field, school, promo)
+        if self.entrance_year:
+            promo = str(self.entrance_year)
+            return "{} {} {}".format(field, school, promo)
 
     def expiration_membership(self):
         last = self.membership.first()

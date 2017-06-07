@@ -104,9 +104,9 @@ class RegistrationWizard(SessionWizardView):
             u = User(email=login_step['email'])
             u.is_active = False  # Not activated yet
             p = Profile(**profile_step)
-            u.profile = p
-
             p.save()
+
+            u.profile = p
             u.save()
 
         # Create or update address info

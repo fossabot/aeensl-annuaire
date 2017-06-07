@@ -97,8 +97,7 @@ class RegistrationWizard(SessionWizardView):
 
             # Update the user profile
             profile_form = ProfileForm(profile_step, instance=u.profile)
-            profile_form.save()
-            u.profile = profile_form
+            u.profile = profile_form.save()
             u.save()
         else:
             # Create a new user from steps 'login' & 'profile'

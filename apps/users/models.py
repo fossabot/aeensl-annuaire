@@ -174,8 +174,10 @@ class Profile(models.Model):
             school = 'LY'
         elif self.entrance_school == 'fontenay':
             school = 'FT'
-        elif self.entrance_school == 'st_clous':
-            school = 'ST'
+        elif self.entrance_school == 'st_cloud':
+            school = 'SC'
+        elif self.entrance_school == 'ens_lsh':
+            school = 'SH'
         else:
             school = ''
 

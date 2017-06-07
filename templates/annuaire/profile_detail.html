@@ -8,7 +8,7 @@
   {% if object.entrance_year %}
   <li class="breadcrumb-item"><a href="{% url 'annuaire:all_promos' %}">Normaliens par promotion</a></li>
   <li class="breadcrumb-item"><a href="{% url 'annuaire:promo_list' object.entrance_year %}">{{ object.entrance_year}}</a></li>
-  <li class="breadcrumb-item active">{{ object }}<span class="badge badge-primary">{{object.nomenclature}}</span></li>
+  <li class="breadcrumb-item active">{{ object }} <span class="badge badge-primary">{{object.nomenclature}}</span></li>
   {% else %}
   <li class="breadcrumb-item active">{{ object }}</li>
   {% endif %}
@@ -50,42 +50,43 @@
   {% endif %}
 
   <div class="list-group">
+    {% if object.entrance_year %}
     <div class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">Entrée en {{object.entrance_year }}, {{object.get_entrance_school_display}}</h5>
       </div>
       <p class="mb-1">sur voie « {{object.entrance_field}} »</p>
     </div>
-    <div class="list-group-item list-group-item-action {{object.website_isvisible | yesno:',list-group-item-warning'}}">
+    {% endif %}
+
+    {% if object.website_isvisible and object.website is not None %}
+    <div class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">Site web personnel</h5>
       </div>
-      {% if view.is_current_user or object.website_isvisible %}
       <p class="mb-1"><a href="{{ object.website }}">{{ object.website }}</a></p>
-      {% else %}
-      <p class="mb-1">Pas de de site web ou site web masqué</p>
-      {% endif %}
     </div>
-    <div class="list-group-item list-group-item-action {{object.email_isvisible | yesno:',list-group-item-warning'}}">
+    {% endif %}
+
+    {% if object.email_isvisible and object.user.email > '' %}
+    <div class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
         <h5 class="mb-1">Contacter par email</h5>
       </div>
-      {% if view.is_current_user or object.email_isvisible %}
-      <p class="mb-1"><a href="mailto:{{ object.user.email}}">{{ object.user.email}}</a></p>
-      {% else %}
-      <p class="mb-1">Pas de d'email ou email masqué</p>
-      {% endif %}
+      <p class="mb-1"><a href="{{ object.user.email }}">{{ object.user.email }}</a></p>
     </div>
-    <div class="list-group-item list-group-item-action {{object.phone_number_isvisible | yesno:',list-group-item-warning'}}">
+    {% endif %}
+
+
+    {% if object.phone_number_isvisible and object.phonenumber is not None %}
+    <div class="list-group-item list-group-item-action">
       <div class="d-flex w-100 justify-content-between">
-        <h5 class="mb-1">Contacter par téléphone</h5>
+        <h5 class="mb-1">Site web personnel</h5>
       </div>
-      {% if view.is_current_user or object.phone_number_isvisible %}
       <p class="mb-1"><a href="tel:{{ object.phone_number}}">{{ object.phone_number}}</a></p>
-      {% else %}
-      <p class="mb-1">Pas de numéro de téléphone ou numéro masqué</p>
-      {% endif %}
     </div>
+    {% endif %}
+
     {% for add in object.address_set.all %}
     {% if view.is_current_user or add.is_public %}
     <div class="list-group-item list-group-item-action flex-column align-items-start {{ add.is_public | yesno:',list-group-item-warning'}}">
@@ -99,17 +100,6 @@
     {% endif %}
     {% endfor %}
     </div>
-
-  <hr class="my-4">
-
-  <ul class="list-group">
-  {% for m in object.profile.membership.all %}
-  <li class="list-group-item justify-content-between">
-    Cotisation {{ m.get_membership_type_display }} à partir du {{m.start_date}}
-    <span class="badge badge-default badge-pill">{{ m.amount }} €</span>
-  </li>
-  {% endfor %}
-  </ul>
 </div>
 </div>
 {% endblock %}

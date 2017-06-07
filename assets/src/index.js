@@ -1,18 +1,32 @@
+// Load modules
+// ------------
+
 var $ = window.$ = window.jQuery = require('jquery');
 var places = require('places.js');
 
+// Boostrap and font-awesome
 global.Tether = require('tether');
+require('font-awesome/css/font-awesome.css');
+require('bootstrap/dist/css/bootstrap.css');
 require('bootstrap');
 
+require('select2/dist/css/select2.css');
 require('select2');
+
 require('intl-tel-input');
 require('intl-tel-input/build/js/utils');
+require('intl-tel-input/build/css/intlTelInput.css');
 
 
+// Local styles and features
+// -------------------------
+
+require('./main.css');
+
+// Style select fields
 if(document.querySelector('#id_profile__user_info-entrance_field')) {
 	$('#id_profile__user_info-entrance_field').select2();
 }
-
 
 // Add flags to phone number fields
 $('#id_1-phone_number').intlTelInput({

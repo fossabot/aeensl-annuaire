@@ -64,6 +64,7 @@ htmlcov
 
 # npm
 node_modules/
+yarn.lock
 
 # Compass
 .sass-cache

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load querystring from django_tables2 %}
+{% load title from django_tables2 %}
+{% load crispy_forms_tags %}
+
+
+
+{% block content %}
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'annuaire:index' %}">Annuaire</a></li>
+  <li class="breadcrumb-item">Membres honoraires</li>
+</ol>
+
+<div class="row justify-content-center">
+<div class="col-md-8">
+  <h4 class="my-4">Membres honoraires de l'association</h4>
+
+  <p>Les membres d'honneur sont des personnes physiques ou morales ayant rendu
+  des services éminents pour la création, le fonctionnement ou le rayonnement
+  des ENS. </p>
+
+  <ul class="list-group">
+  {% for p in object_list %}
+  <li class="list-group-item"><a href="{% url 'annuaire:user_profile' p.id %}">{{p}}</a>&nbsp;<span class="badge badge-primary">{{p.nomenclature}}</span></li>
+  {% endfor %}
+  </ul>
+
+</div>
+</div>
+{% endblock %}

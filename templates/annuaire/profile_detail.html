@@ -12,8 +12,11 @@
 
 <div class="row justify-content-center">
 <div class="col-md-8">
-  <h1 class="mb-2">{{ object }}</h1>
-
+  <h1 class="mb-2">{{ object }}
+    {% if object.is_honorary %}
+    <small class="text-muted">(membre honoraire)</small>
+    {% endif %}
+  </h1>
 
   {% if user.is_admin %}
   <div class="breadcrumb">

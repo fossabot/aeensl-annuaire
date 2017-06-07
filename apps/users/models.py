@@ -185,14 +185,14 @@ class Profile(models.Model):
         return "{} {} {}".format(field, school, promo)
 
     def expiration_membership(self):
-        last = self.membership.last()
+        last = self.membership.first()
         if last is None:
             raise ValueError("No membership was found for user {}".format(self))
 
         return last.start_date + relativedelta(years=last.duration)
 
     def active_membership(self):
-        last = self.membership.last()
+        last = self.membership.first()
         if last is None:
             return False
 

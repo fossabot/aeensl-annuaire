@@ -161,7 +161,7 @@ class ProfileAdmin(admin.ModelAdmin):
         return obj.user
 
     def membership(self, obj):
-        last = obj.membership.last()
+        last = obj.membership.first()
 
         if last is None:
             return None

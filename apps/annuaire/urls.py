@@ -20,4 +20,7 @@ urlpatterns = [
 
     url(r'^search/$',
         views.ProfileSearchView.as_view(), name="search_profile"),
+
+    url(r'^association/membres-honoraires$',
+        views.HonoraryProfileListView.as_view(), name="membres-honoraires"),
 ]

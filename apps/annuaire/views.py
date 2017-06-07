@@ -1,5 +1,4 @@
-from django.views.generic import TemplateView
-from django.views.generic import DetailView
+from django.views.generic import TemplateView, DetailView, ListView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.db.models.aggregates import Count
@@ -12,6 +11,7 @@ from crispy_forms.layout import Layout, Field
 
 from users.models import Profile
 from . import filters
+
 
 @method_decorator(login_required, name='dispatch')
 class AnnuaireView(TemplateView):
@@ -124,3 +124,10 @@ class ProfileSearchView(ProfileListView):
 
     filter_class = filters.SearchFilter
     formhelper_class = filters.SearchFormHelper
+
+
+@method_decorator(login_required, name='dispatch')
+class HonoraryProfileListView(ListView):
+    template_name = "annuaire/membres_honoraires.html"
+    model = Profile
+    queryset = Profile.objects.filter(is_honorary=True).order_by('last_name', 'first_name')

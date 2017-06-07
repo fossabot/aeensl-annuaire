@@ -17,18 +17,30 @@ l'association : <a href="mailto:ca@lyon-normalesup.org">ca@lyon-normalesup.org</
     <div class="card-block">
       <h4 class="card-title">Rechercher un normalien</h4>
       <h6 class="card-subtitle mb-2 text-muted">parmi plus de 14 000 anciens</h6>
+      <div class="d-flex justify-content-center my-2">
+        <span class="fa-stack fa-4x icon-faded">
+          <i class="fa fa-circle fa-stack-2x"></i>
+          <i class="fa fa-search fa-stack-1x fa-inverse"></i>
+        </span>
+      </div>
       <p class="card-text">À la recherche d'un ami perdu de vu, d'une connaissance
       rencontrée à l'ENS ou d'anciens étudiants près de chez vous ? Utilisez nos
       fonction de recherche pour parcourir cet annuaire.</p>
     </div>
     <div class="card-footer text-muted">
-      <a href="#" class="card-link">Rechercher dans l'annuaire</a>
+      <a href="{% url 'annuaire:search_profile' %}" class="card-link">Rechercher dans l'annuaire</a>
     </div>
   </div>
   <div class="card">
     <div class="card-block">
       <h4 class="card-title">Normaliens par promo</h4>
       <h6 class="card-subtitle mb-2 text-muted">de 1921 à 2017</h6>
+      <div class="d-flex justify-content-center my-2">
+        <span class="fa-stack fa-4x icon-faded">
+          <i class="fa fa-circle fa-stack-2x"></i>
+          <i class="fa fa-users fa-stack-1x fa-inverse"></i>
+        </span>
+      </div>
       <p class="card-text">Explorez l'ensemble des promotions passées dans les ENS
       de St-Cloud, Fontenay-aux-Roses et Lyon. Notre annuaire reprend l'ensemble
       des publications au bulletin officiel ainsi que tous les adhérents de

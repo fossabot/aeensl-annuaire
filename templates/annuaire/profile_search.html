@@ -8,21 +8,18 @@
 {% block content %}
 <ol class="breadcrumb">
   <li class="breadcrumb-item"><a href="{% url 'annuaire:index' %}">Annuaire</a></li>
-  <li class="breadcrumb-item"><a href="{% url 'annuaire:all_promos' %}">Normaliens par promotion</a></li>
-  <li class="breadcrumb-item">{{ view.kwargs.year }}</li>
+  <li class="breadcrumb-item">Formulaire de recherche</li>
 </ol>
 
 <div class="row justify-content-center">
 <div class="col-md-10">
-
+  <h3 class="my-2">Rechercher un normalien</h3>
 
   <form class="search-box my-4" method="GET" action="">
     <!-- {% csrf_token %} -->
-    <p class="mr-2">Filter les résultats par</p>
     {% crispy filter.form filter.form.helper %}
     <button class="btn btn-primary" type="submit">Rechercher</button>
   </form>
-
 
   <table class="table table-striped">
   <thead>

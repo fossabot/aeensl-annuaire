@@ -267,6 +267,7 @@ class Membership(models.Model):
     class Meta:
         verbose_name = "Cotisation"
         verbose_name_plural = "Cotisations"
+        ordering = ['-start_date', '-created_on']
 
     def __str__(self):
         return "Cotisation {} de {}".format(self.start_date.year, self.profile)

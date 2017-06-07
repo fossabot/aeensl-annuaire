@@ -59,6 +59,8 @@
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
               <a class="dropdown-item" href="{% url 'annuaire:current_profile' %}">Mon profil public</a>
+              <a class="dropdown-item" href="{% url 'annuaire:current_profile_memberships' %}">Mes cotisations</a>
+
               <a class="dropdown-item" href="{% url 'account_change_password' %}">Modifier mon mot de passe</a>
               <a class="dropdown-item" href="{% url 'account_logout' %}">Déconnexion</a>
             </div>

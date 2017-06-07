@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load admin_urls %}
+
+{% block content %}
+
+<ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'annuaire:index' %}">Annuaire</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'annuaire:all_promos' %}">Normaliens par promotion</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'annuaire:promo_list' object.entrance_year %}">{{ object.entrance_year}}</a></li>
+  <li class="breadcrumb-item active">
+    <a href="{% url 'annuaire:user_profile' object.id %}">{{ object }}</a>
+    <span class="badge badge-primary">{{object.nomenclature}}</span>
+  </li>
+  <li class="breadcrumb-item active">Cotisations</li>
+</ol>
+
+<div class="row justify-content-center">
+<div class="col-md-8">
+  <h1 class="my-2">Cotisations de {{ object }}</h1>
+
+  {% if user.is_admin %}
+  {% endif %}
+
+  <div class="list-group">
+    {% for m in object.membership.all %}
+    <a href="{% url 'membership-detail' m.uid %}" class="list-group-item list-group-item-action flex-column align-items-start">
+      <div class="d-flex w-100 justify-content-between">
+        <h5 class="mb-1">Cotisation {{m.start_date.year}}</span></h5>
+        {% if m.status == 'submitted' %}
+        <small class="text-warning"><i class="fa fa-clock-o" aria-hidden="true"></i> adhésion en cours</small>
+        {% elif m.status == 'accepted' %}
+        <small class=""><i class="fa fa-check-circle-o text-success" aria-hidden="true"></i> adhésion valide</small>
+        {% else %}
+        <small class="text-danger"><i class="fa fa-times" aria-hidden="true"></i> adhésion rejetée</small>
+        {% endif %}
+      </div>
+      {% if m.amount is None %}
+      <p class="mb-1">Adhésion gratuite</p>
+      <small>Adhésion validée le {{ m.payment_on.date }}</small>
+      {% else %}
+      <p class="mb-1">Adhésion {{ m.get_membership_type_display }} d'un montant de {{ m.amount }} €</p>
+      <small>Paiement par {{m.get_payment_type_display | lower}} reçu le {{ m.payment_on.date }}</small>
+      {% endif %}
+    </a>
+    {% endfor %}
+  </div>
+</div>
+</div>
+{% endblock %}

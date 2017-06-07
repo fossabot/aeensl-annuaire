@@ -29,10 +29,7 @@ urlpatterns = [
         ProfileAutocomplete.as_view(),
         name='profile-autocomplete'),
 
-    url(
-        r'^$',
-        index,
-        name='index')
+    url(r'^$', index, name='index')
 ]
 
 if settings.DEBUG:

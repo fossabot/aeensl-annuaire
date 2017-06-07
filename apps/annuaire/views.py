@@ -10,9 +10,8 @@ import django_tables2 as tables
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
 
-
 from users.models import Profile
-
+from . import filters
 
 @method_decorator(login_required, name='dispatch')
 class AnnuaireView(TemplateView):
@@ -50,6 +49,20 @@ class CurrentProfileDetailView(ProfileDetailView):
         return self.request.user.profile
 
 
+@method_decorator(login_required, name='dispatch')
+class ProfileMembershipView(DetailView):
+    template_name = "annuaire/profile_membership_detail.html"
+    queryset = Profile.objects.all()
+
+    def is_current_user(self):
+        return self.get_object() == self.request.user.profile
+
+
+@method_decorator(login_required, name='dispatch')
+class CurrentProfileMembershipView(ProfileMembershipView):
+    def get_object(self):
+        return self.request.user.profile
+
 # Table views & utils
 # -------------------
 
@@ -64,23 +77,6 @@ class ProfileTable(tables.Table):
     entrance_school = tables.Column(verbose_name="École")
     entrance_year = tables.Column(verbose_name="Année d'entrée")
     entrance_field = tables.Column(verbose_name="Discipline d'entrée")
-
-
-class ProfileListFilter(django_filters.FilterSet):
-    class Meta:
-        model = Profile
-        fields = ['last_name', 'first_name']
-        order_by = ['pk']
-
-
-class ProfileListFormHelper(FormHelper):
-    form_tag = False
-    form_show_labels = False
-
-    layout = Layout(
-        Field('first_name', placeholder='Prénom', css_class='mr-2'),
-        Field('last_name', placeholder='Nom', css_class='mr-2'),
-    )
 
 
 class PagedFilteredTableView(tables.SingleTableView):
@@ -107,8 +103,8 @@ class ProfileListView(PagedFilteredTableView):
     model = Profile
 
     table_class = ProfileTable
-    filter_class = ProfileListFilter
-    formhelper_class = ProfileListFormHelper
+    filter_class = filters.ProfileListFilter
+    formhelper_class = filters.ProfileListFormHelper
 
     def post(self, request, *args, **kwargs):
         return PagedFilteredTableView.as_view()(request)
@@ -120,3 +116,11 @@ class ProfilePromotionListView(ProfileListView):
         qs = super(ProfileListView, self).get_queryset(**kwargs)
         qs = qs.filter(entrance_year=self.kwargs['year'])
         return qs
+
+
+@method_decorator(login_required, name='dispatch')
+class ProfileSearchView(ProfileListView):
+    template_name = "annuaire/profile_search.html"
+
+    filter_class = filters.SearchFilter
+    formhelper_class = filters.SearchFormHelper

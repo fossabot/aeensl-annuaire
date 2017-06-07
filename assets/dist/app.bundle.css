@@ -10698,6 +10698,11 @@ a.text-gray-dark:focus, a.text-gray-dark:hover {
 }
 
 
+.icon-faded {
+  color: rgb(228, 218, 208);
+}
+
+
 /* Forms */
 
 

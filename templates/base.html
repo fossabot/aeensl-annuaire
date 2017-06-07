@@ -9,59 +9,73 @@
   {% block head %}{% endblock %}
 </head>
 <body class="pb-2">
-    <header class="navbar navbar-toggleable-md navbar-light bg-faded mb-4">
-      <nav class="container">
-        <div class="d-flex justify-content-between ">
-          <a class="navbar-brand" href="/">Espace adhérent</a>
-          <button class="navbar-toggler" type="button" data-toggle="collapse"
-            data-target="#header-main-nav" aria-controls="header-main-nav"
-            aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-          </button>
-        </div>
-
-        <div class="collapse navbar-collapse" id="header-main-nav">
-          <ul class="nav navbar-nav w-100">
-            {% if not user.is_authenticated %}
-            <li class="nav-item active">
-              <a class="nav-link" href="{% url 'register' %}">Nouvelle adhésion</a>
-            </li>
-            {% endif %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'annuaire:index' %}">Accès à l'annuaire</a>
-            </li>
-
-            {% if user.is_authenticated %}
-            <li class="nav-item">
-              <a class="nav-link" href="{% url 'annuaire:index' %}">Normaliens par promo</a>
-            </li>
-
-            <li class="nav-item active ml-auto">
-              <a class="nav-link btn-outline-primary btn" href="{% url 'register_renew' %}">Ré-adhérer</a>
-            </li>
-            <li class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="{% url 'annuaire:current_profile' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Mon profil
-              </a>
-              <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                <a class="dropdown-item" href="{% url 'annuaire:current_profile' %}">Mon profil public</a>
-                <a class="dropdown-item" href="{% url 'account_change_password' %}">Modifier mon mot de passe</a>
-                <a class="dropdown-item" href="{% url 'account_logout' %}">Déconnexion</a>
-              </div>
-            </li>
-            {% else %}
-            <li class="nav-item active ml-auto">
-              <a class="nav-link" href="{% url 'account_login' %}">Connexion à l'annuaire</a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
-    </header>
-
+  <nav id="top-header" class="top-header navbar navbar-toggleable-md navbar-light bg-faded mb-4">
     <div class="container">
-    {% block content %}{% endblock %}
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#header-main-nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <a class="navbar-brand c" href="#">
+        <img class="header-logo" src="{% static "logo_header.png" %}" alt="">
+      </a>
+
+      <div class="collapse navbar-collapse" id="header-main-nav">
+        <ul class="nav navbar-nav mr-auto">
+          {% if not user.is_authenticated %}
+          <li class="nav-item active">
+            <a class="nav-link" href="{% url 'register' %}">Nouvelle adhésion</a>
+          </li>
+          {% endif %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'annuaire:index' %}">Accès à l'annuaire</a>
+          </li>
+
+          {% if user.is_admin %}
+          <li class="nav-item"><a class="nav-link text-danger" href="{% url 'admin:index' %}">Administration</a></li>
+          {% endif %}
+        </ul>
+        <ul class="nav navbar-nav">
+          {% if user.is_authenticated %}
+          {% if user.profile.active_membership %}
+          <li class="nav-item active hidden-md-down mr-2">
+            <p class="navbar-text">Adhésion jusqu'en {{ user.profile.expiration_membership.year }}</p>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link text-primary" href="{% url 'register_renew' %}">Ré-adhérer</a>
+          </li>
+          {% else %}
+          <li class="nav-item active mr-2">
+            <p class="navbar-text text-danger">Adhésion expirée</p>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link text-danger" href="{% url 'register_renew' %}">Ré-adhérer</a>
+          </li>
+          {% endif %}
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="{% url 'annuaire:current_profile' %}" id="navbarDropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Mon profil
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+              <a class="dropdown-item" href="{% url 'annuaire:current_profile' %}">Mon profil public</a>
+              <a class="dropdown-item" href="{% url 'account_change_password' %}">Modifier mon mot de passe</a>
+              <a class="dropdown-item" href="{% url 'account_logout' %}">Déconnexion</a>
+            </div>
+          </li>
+          {% else %}
+          <li class="nav-item active ml-auto">
+            <a class="nav-link" href="{% url 'account_login' %}">Connexion à l'annuaire</a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
     </div>
-    <script type="text/javascript" src="{% static "dist/app.js" %}"></script>
+  </nav>
+
+  <div class="container">
+  {% block content %}{% endblock %}
+  </div>
+  <script type="text/javascript" src="{% static "dist/app.js" %}"></script>
 </body>
 </head>

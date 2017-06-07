@@ -1,10 +1,11 @@
 {% extends "base.html" %}
+{% load admin_urls %}
 
 {% block content %}
 
 <ol class="breadcrumb">
   <li class="breadcrumb-item"><a href="{% url 'annuaire:index' %}">Annuaire</a></li>
-  <li class="breadcrumb-item">Normalien par promotion</li>
+  <li class="breadcrumb-item"><a href="{% url 'annuaire:all_promos' %}">Normaliens par promotion</a></li>
   <li class="breadcrumb-item"><a href="{% url 'annuaire:promo_list' object.entrance_year %}">{{ object.entrance_year}}</a></li>
   <li class="breadcrumb-item active">{{ object }} <span class="badge badge-primary">{{object.nomenclature}}</span></li>
 </ol>
@@ -12,6 +13,34 @@
 <div class="row justify-content-center">
 <div class="col-md-8">
   <h1 class="mb-2">{{ object }}</h1>
+
+
+  {% if user.is_admin %}
+  <div class="breadcrumb">
+    <div class="p-2 d-inline">
+      <span>Accès admin</span>
+    </div>
+    <div class="btn-group m-2" role="group" aria-label="First group">
+      {% if object.user %}
+      <a class="btn btn-outline-warning" href="{% url 'admin:users_user_change' object.user.id %}">Editer le compte</a>
+      {% else %}
+      <a class="btn btn-outline-warning disabled" >Pas de compte associé</a>
+      {% endif %}
+      <a class="btn btn-outline-warning" href="{% url 'admin:users_profile_change' object.id %}">Editer le profil</a>
+      <a class="btn btn-outline-danger" href="{% url 'admin:users_profile_delete' object.id %}">Supprimer le profil</a>
+    </div>
+    <div class="btn-group" role="group" aria-label="Second group">
+      {% with last_m=object.membership.last %}
+      {% if last_m %}
+      <a class="btn btn-outline-primary" href="{% url 'admin:users_membership_change' last_m.id %}">Dernière adhésion en {{last_m.start_date.year}}</a>
+      {% else %}
+      <a class="btn btn-outline-primary disabled">Aucune adhésion</a>
+      {% endif %}
+      <a class="btn btn-outline-primary" href="{% url 'admin:users_membership_add' %}">Nouvelle adhésion manuelle</a>
+      {% endwith %}
+    </div>
+  </div>
+  {% endif %}
 
   <div class="list-group">
     <div class="list-group-item list-group-item-action">
@@ -25,7 +54,7 @@
         <h5 class="mb-1">Site web personnel</h5>
       </div>
       {% if view.is_current_user or object.website_isvisible %}
-      <p class="mb-1">{{ object.website }}</p>
+      <p class="mb-1"><a href="{{ object.website }}">{{ object.website }}</a></p>
       {% else %}
       <p class="mb-1">Pas de de site web ou site web masqué</p>
       {% endif %}
@@ -35,7 +64,7 @@
         <h5 class="mb-1">Contacter par email</h5>
       </div>
       {% if view.is_current_user or object.email_isvisible %}
-      <p class="mb-1">{{ object.user.email}}</p>
+      <p class="mb-1"><a href="mailto:{{ object.user.email}}">{{ object.user.email}}</a></p>
       {% else %}
       <p class="mb-1">Pas de d'email ou email masqué</p>
       {% endif %}
@@ -45,7 +74,7 @@
         <h5 class="mb-1">Contacter par téléphone</h5>
       </div>
       {% if view.is_current_user or object.phone_number_isvisible %}
-      <p class="mb-1">{{ object.phone_number}}</p>
+      <p class="mb-1"><a href="tel:{{ object.phone_number}}">{{ object.phone_number}}</a></p>
       {% else %}
       <p class="mb-1">Pas de numéro de téléphone ou numéro masqué</p>
       {% endif %}

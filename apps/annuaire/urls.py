@@ -6,6 +6,8 @@ urlpatterns = [
     url(r'^$', views.AnnuaireView.as_view(), name='index'),
     url(r'^profile/me/',
         views.CurrentProfileDetailView.as_view(), name="current_profile"),
+    url(r'^promo/$',
+        views.PromoListView.as_view(), name="all_promos"),
     url(r'^promo/(?P<year>\d+)/$',
         views.ProfilePromotionListView.as_view(), name="promo_list"),
     url(r'^profile/(?P<pk>\d+)/$',

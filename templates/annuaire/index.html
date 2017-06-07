@@ -5,33 +5,42 @@
 
 <div class="row justify-content-center">
 
-<div class="col-md-3">
-  <h5 class="my-2">Rechercher un normalien</h5>
-  <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente labore recusandae aliquid nobis voluptates deserunt laudantium voluptatibus doloremque sit consequatur numquam quam hic exercitationem, blanditiis! Impedit labore, quas quisquam ducimus.</p>
+<div class="col-md-8">
+<h3 class="mb-2">L'annuaire des anciens</h3>
 
-</div>
+<p>Vous n'arrivez pas à effectuer votre recherche en
+ligne ? N'hésitez pas à nous contacter directement en envoyant un email à
+l'association : <a href="mailto:ca@lyon-normalesup.org">ca@lyon-normalesup.org</a></p>
 
-<div class="col-md-9">
-
-<h3 class="my-2">Normaliens par promotion</h3>
-
-<div class="d-flex flex-wrap">
-{% for promo, count in counts_promo %}
-  <div class="card card-outline-primary w-25 my-2 mr-4">
+<div class="card-deck">
+  <div class="card">
     <div class="card-block">
-      <h4 class="card-title">
-        <a href="{% url 'annuaire:promo_list' promo %}">Promo {{promo}}</a>
-      </h4>
-      <h6 class="card-subtitle mb-2 text-muted">{{count}} personnes</h6>
-      <!-- <a href="#" class="card-link">Card link</a>
-      <a href="#" class="card-link">Another link</a> -->
+      <h4 class="card-title">Rechercher un normalien</h4>
+      <h6 class="card-subtitle mb-2 text-muted">parmi plus de 14 000 anciens</h6>
+      <p class="card-text">À la recherche d'un ami perdu de vu, d'une connaissance
+      rencontrée à l'ENS ou d'anciens étudiants près de chez vous ? Utilisez nos
+      fonction de recherche pour parcourir cet annuaire.</p>
+    </div>
+    <div class="card-footer text-muted">
+      <a href="#" class="card-link">Rechercher dans l'annuaire</a>
     </div>
   </div>
-{% endfor %}
+  <div class="card">
+    <div class="card-block">
+      <h4 class="card-title">Normaliens par promo</h4>
+      <h6 class="card-subtitle mb-2 text-muted">de 1921 à 2017</h6>
+      <p class="card-text">Explorez l'ensemble des promotions passées dans les ENS
+      de St-Cloud, Fontenay-aux-Roses et Lyon. Notre annuaire reprend l'ensemble
+      des publications au bulletin officiel ainsi que tous les adhérents de
+      l'association.</p>
+    </div>
+    <div class="card-footer text-muted">
+      <a href="{% url 'annuaire:all_promos' %}" class="card-link">Voir les promotions</a>
+    </div>
+  </div>
 </div>
 
 </div>
-
 </div>
 
 {% endblock %}

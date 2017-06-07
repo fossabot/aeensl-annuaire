@@ -8941,6 +8941,12 @@ a.text-gray-dark:focus, a.text-gray-dark:hover {
 .iti-flag {
   background-image: url("/static/dist/img/flags.png"); }
 
+.top-header {
+  background-color: #e4dad0; }
+
+.header-logo {
+  height: 3em; }
+
 form > fieldset {
   background-color: #f5f5f5;
   padding: 1rem;

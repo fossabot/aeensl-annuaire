@@ -18,6 +18,11 @@ from users.models import Profile
 class AnnuaireView(TemplateView):
     template_name = "annuaire/index.html"
 
+
+@method_decorator(login_required, name='dispatch')
+class PromoListView(TemplateView):
+    template_name = "annuaire/promo_list.html"
+
     def get_context_data(self, **kwargs):
         query = Profile.objects.values('entrance_year').order_by('entrance_year').annotate(Count('entrance_year'))
         counts = {
@@ -25,7 +30,7 @@ class AnnuaireView(TemplateView):
             for c in query if c['entrance_year'] is not None
         }
 
-        context = super(AnnuaireView, self).get_context_data(**kwargs)
+        context = super(PromoListView, self).get_context_data(**kwargs)
         context['counts_promo'] = sorted(counts.items(), reverse=True)
         return context
 

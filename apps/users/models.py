@@ -9,6 +9,7 @@ from post_office import mail
 
 import uuid
 from datetime import date
+from dateutil.relativedelta import relativedelta
 
 
 class UserManager(BaseUserManager):
@@ -182,6 +183,21 @@ class Profile(models.Model):
         promo = str(self.entrance_year)[-2:]
 
         return "{} {} {}".format(field, school, promo)
+
+    def expiration_membership(self):
+        last = self.membership.last()
+        if last is None:
+            raise ValueError("No membership was found for user {}".format(self))
+
+        return last.start_date + relativedelta(years=last.duration)
+
+    def active_membership(self):
+        last = self.membership.last()
+        if last is None:
+            return False
+
+        expire = last.start_date + relativedelta(years=last.duration)
+        return expire > date.today()
 
 
 class Address(models.Model):

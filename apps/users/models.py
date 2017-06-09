@@ -7,6 +7,8 @@ from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MinValueValidator
 from post_office import mail
 
+from django_fsm import FSMField, transition
+
 import uuid
 from datetime import date
 from dateutil.relativedelta import relativedelta
@@ -311,15 +313,15 @@ class Membership(models.Model):
     STATUS_TYPE_SUBMITTED = 'submitted'
     STATUS_TYPE_ACCEPTED = 'accepted'
     STATUS_TYPE_REJECTED = 'rejected'
+
     STATUS_TYPE_CHOICES = (
-        (STATUS_TYPE_SUBMITTED, 'Demande en cours (paiement en attente)'),
-        (STATUS_TYPE_ACCEPTED, 'Demande acceptée (paiement reçu)'),
+        (STATUS_TYPE_SUBMITTED, 'Nouvelle demande (paiement en attente)'),
+        (STATUS_TYPE_ACCEPTED, 'Demande validée'),
         (STATUS_TYPE_REJECTED, 'Demande rejetée')
     )
-    status = models.CharField(
-        "Statut de la demande", max_length=30,
-        choices=STATUS_TYPE_CHOICES,
-        default=STATUS_TYPE_SUBMITTED)
+
+    status = FSMField("Statut de la demande", default=STATUS_TYPE_SUBMITTED,
+                      choices=STATUS_TYPE_CHOICES)
 
     # Creation and payment information
     created_on = models.DateTimeField(
@@ -395,12 +397,32 @@ class Membership(models.Model):
     def is_transfer(self):
         return self.payment_type == Membership.PAYMENT_TYPE_BANK_TRANSFER
 
+    # Transitions
+    # -----------
 
-    def send_confirmation_email(self):
+    @transition(field=status, source='submitted', target='rejected',
+                custom=dict(button_name="Rejeter la cotisation sans informer l'utilisateur"))
+    def reject_silent(self):
+        pass
+
+    @transition(field=status, source='submitted', target='rejected',
+                custom=dict(button_name="Rejeter la cotisation"))
+    def reject(self):
+        self.email_user('rejected')
+
+    @transition(field=status, source='submitted', target='accepted',
+                custom=dict(button_name="Valider la cotisation"))
+    def accept(self):
+        self.email_user('accepted')
+
+    def email_user(self, status=None):
+        if status is None:
+            status = self.status
+
         mail.send(
             self.profile.user.email,
             'luc@lyon-normalesup.org',  # For development purposes
-            template='membership_submitted',
+            template='membership_{}'.format(status),
             context={
                 'membership': self
             },

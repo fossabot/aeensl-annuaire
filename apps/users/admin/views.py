@@ -1,12 +1,13 @@
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib import admin
 
+from fsm_admin.mixins import FSMTransitionMixin
 from dateutil.relativedelta import relativedelta
 from django_reverse_admin import ReverseModelAdmin
 import import_export
 
 from .forms import *
-from .filters import *
+from .filters import UserProblemsFilter
 
 
 class UserAdmin(BaseUserAdmin, ReverseModelAdmin):
@@ -109,8 +110,9 @@ class ProfileAdmin(admin.ModelAdmin):
     membership.short_description = "Cotisation jusqu'au"
 
 
-class MembershipAdmin(import_export.admin.ImportExportModelAdmin):
+class MembershipAdmin(FSMTransitionMixin, import_export.admin.ImportExportModelAdmin):
     resource_class = MembershipResource
+    fsm_field = ('status', )
 
     list_display = ('utilisateur', 'uid', 'status', 'created_on', 'start_date')
     list_filter = ('status', 'membership_type')
@@ -129,7 +131,7 @@ class MembershipAdmin(import_export.admin.ImportExportModelAdmin):
                        'payment_name']
         })
     ]
-    readonly_fields = ('created_on', )
+    readonly_fields = ('profile', 'status', 'created_on', )
 
     def utilisateur(self, obj):
         return obj.profile

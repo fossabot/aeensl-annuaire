@@ -20,6 +20,11 @@ CONTRIB_APPS = [
     'post_office',
     'django_extensions',
 
+    # Logic states
+    'django_fsm',
+    'django_fsm_log',
+    'fsm_admin',
+
     # Forms and templates
     'crispy_forms',  # Form layouts
     'bootstrapform',

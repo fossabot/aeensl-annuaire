@@ -8,6 +8,9 @@ django-allauth
 django-allauth-bootstrap
 django-solo
 django-post_office
+django-fsm
+django-fsm-log
+django-fsm-admin
 
 # Interface
 django-crispy-forms

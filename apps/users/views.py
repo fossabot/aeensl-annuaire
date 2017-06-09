@@ -128,7 +128,7 @@ class RegistrationWizard(SessionWizardView):
         membership.save()
 
         # Send a confirmation email
-        membership.send_confirmation_email()
+        membership.email_user(status="submitted")
 
         mb_url = self.request.build_absolute_uri(
             reverse('membership-detail', args=[membership.uid]))

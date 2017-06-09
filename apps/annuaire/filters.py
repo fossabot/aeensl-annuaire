@@ -8,7 +8,12 @@ from crispy_forms.layout import Layout, Field, Div, HTML
 class SearchFilter(django_filters.FilterSet):
     class Meta:
         model = Profile
-        fields = ['first_name', 'last_name', 'common_name', 'entrance_year', 'entrance_school', 'entrance_field']
+        fields = ['entrance_year', 'entrance_school']
+
+    first_name = django_filters.CharFilter(name='first_name', label='Prénom (contient)', lookup_expr='icontains')
+    last_name = django_filters.CharFilter(name='last_name', label='Nom (contient)', lookup_expr='icontains')
+    common_name = django_filters.CharFilter(name='common_name', label='Nom d\'usage (contient)', lookup_expr='icontains')
+    entrance_field = django_filters.CharFilter(name='entrance_field', label='Discipline d\'entrée (contient)', lookup_expr='icontains')
 
 
 class SearchFormHelper(FormHelper):

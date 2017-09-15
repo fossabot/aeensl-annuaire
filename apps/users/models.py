@@ -40,8 +40,8 @@ class Profile(models.Model):
     # Demographics and public profile
     # -------------------------------
 
-    first_name = models.CharField('Prénom', max_length=30)
-    last_name = models.CharField('Nom', max_length=30)
+    first_name = models.CharField('Prénom', max_length=50)
+    last_name = models.CharField('Nom', max_length=100)
 
     GENDER_CHOICES = (
         ('f', 'Madame'),

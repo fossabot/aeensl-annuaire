@@ -37,7 +37,7 @@
       <a class="btn btn-outline-danger" href="{% url 'admin:users_profile_delete' object.id %}">Supprimer le profil</a>
     </div>
     <div class="btn-group" role="group" aria-label="Second group">
-      {% with last_m=object.membership.last %}
+      {% with last_m=object.membership.first %}
       {% if last_m %}
       <a class="btn btn-outline-primary" href="{% url 'admin:users_membership_change' last_m.id %}">Dernière adhésion en {{last_m.start_date.year}}</a>
       {% else %}

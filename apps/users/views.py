@@ -11,6 +11,7 @@ from django.contrib import auth
 
 from formtools.wizard.views import SessionWizardView
 from dal import autocomplete
+from datetime import datetime
 
 # Local forms and models
 from users.forms import UserLoginForm, ProfileForm, MembershipForm, ProfileAddressForm, AddressForm
@@ -162,7 +163,8 @@ def process_payment_view(request, **kwargs):
 
     try:
         m.accept()
-        m.payment_type = 'CARD'        
+        m.payment_type = 'CARD'
+        m.payment_on = datetime.now()
         
         charge  = stripe.Charge.create(
             amount      = int(m.amount * 100),

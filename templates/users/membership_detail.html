@@ -26,7 +26,7 @@
     </li>
     {% if object.status == 'accepted' %}
     <li class="list-group-item">
-        Demande validée par le trésorier.
+        Demande validée par le trésorier. <span class="badge badge-success ml-auto">{{ object.payment_on }}</span>
     </li>
     {% elif object.status == 'rejected' %}
     <li class="list-group-item">

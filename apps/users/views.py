@@ -143,3 +143,36 @@ class RegistrationWizard(SessionWizardView):
 class MembershipDetailView(DetailView):
     slug_field = 'uid'
     queryset = Membership.objects.all()
+
+
+def process_payment_view(request, **kwargs):
+    import stripe
+    stripe.api_key = settings.STRIPE_SECRET_KEY
+
+    if not request.user.is_authenticated():
+        return redirect("register")
+
+    if not request.method == "POST":
+        return redirect("/")
+
+    token = request.POST.get("stripeToken")
+    membership_uid = request.POST.get("membershipID")
+
+    m = Membership.objects.get(uid=membership_uid)        
+
+    try:
+        m.accept()
+        m.payment_type = 'CARD'        
+        
+        charge  = stripe.Charge.create(
+            amount      = int(m.amount * 100),
+            currency    = "eur",
+            source      = token,
+            description = "Cotisation annuelle à l'assocation",
+            metadata    = {"membership_id": m.uid}
+        )
+    except stripe.error.CardError as ce:
+        return False, ce
+    else:
+        m.save()
+        return redirect("membership-detail", m.uid)

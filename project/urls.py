@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 
-from users.views import RegistrationWizard, MembershipDetailView, index, ProfileAutocomplete
+from users.views import RegistrationWizard, MembershipDetailView, index, ProfileAutocomplete, process_payment_view
 
 
 renew_view = login_required(RegistrationWizard.as_view(condition_dict={
@@ -23,6 +23,7 @@ urlpatterns = [
         r'^cotisations/(?P<slug>[0-9a-z-]+)/$',
         MembershipDetailView.as_view(),
         name='membership-detail'),
+    url(r'^process-payment$', process_payment_view, name='process-payment'),
 
     # Autocomplete API
     url(r'^profile-autocomplete/$',

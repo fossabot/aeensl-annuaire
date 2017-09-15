@@ -84,7 +84,7 @@ class Profile(models.Model):
 
     STATUS_SCHOOL_CHOICES = (
         ('normalien', 'Élève normalien'),
-        ('etudiant', 'Étudiant normalien')
+        ('etudiant', 'Étudiant normalien (anciennement auditeur)')
     )
     status_school = models.CharField(
         "Statut à l'école", max_length=30,
@@ -134,6 +134,9 @@ class Profile(models.Model):
         "Recevoir le bulletin en papier", default=False)
 
     def __str__(self):
+        if self.common_name:
+            return "{} {}".format(self.first_name, self.common_name)
+
         return "{} {}".format(self.first_name, self.last_name)
 
     def type_field(self):
@@ -343,9 +346,11 @@ class Membership(models.Model):
 
     PAYMENT_TYPE_BANK_TRANSFER = 'BANK_TRANSFER'
     PAYMENT_TYPE_CHECK = 'CHECK'
+    PAYMENT_TYPE_CARD = 'CARD'
     PAYMENT_TYPE_CHOICES = (
         (PAYMENT_TYPE_BANK_TRANSFER, 'Virement'),
-        (PAYMENT_TYPE_CHECK, 'Chèque')
+        (PAYMENT_TYPE_CHECK, 'Chèque'),
+        (PAYMENT_TYPE_CARD, 'Carte bancaire')
     )
     payment_type = models.CharField(
         "Méthode de paiment", max_length=30, choices=PAYMENT_TYPE_CHOICES)

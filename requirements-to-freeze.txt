@@ -33,3 +33,6 @@ django-npm
 
 # Monitoring with sentry
 raven
+
+# Payment processing
+stripe

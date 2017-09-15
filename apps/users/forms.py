@@ -134,12 +134,11 @@ class ProfileForm(forms.ModelForm):
                 'status_school',
                 'professional_status',
                 HTML(
-                    "<div class='alert alert-info' role='alert'>"
-                    "<h5 class='alert-heading'>Documents supplémentaires</h4>"
-                    "<p>Afin de faciliter la vérification, merci d'ajouter un "
-                    "document permettant d'attester votre présence à l'école : "
-                    "justificatif de scolarité, carte d'étudiant, <i>etc.</i></p>"
-                    "</div>"),
+                    """<div class='alert alert-info' role='alert'>
+                    <h5 class='alert-heading'>Documents supplémentaires</h4>
+                    <p>S’il s’agit de votre première adhésion à l’Association des élèves et anciens élèves, et afin de faciliter les opérations de vérification, nous vous remercions de bien vouloir déposer un document officiel attestant de votre passage à l’ENS (justificatif de scolarité, certificat d’inscription, carte d’étudiant, <i>etc.</i>).
+                    En cas de difficultés, vous pouvez ignorer cette étape. Si nécessaire, le trésorier de l’Association prendra alors votre attache avant de confirmer votre adhésion. Il convient de noter que les opérations de vérification peuvent prendre plus de temps en l’absence de document.</p>
+                    </div>"""),
                 'proof_school',
             )
         )

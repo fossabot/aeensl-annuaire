@@ -78,6 +78,7 @@
 </table>
 </section>
 
+{% if object.status == 'submitted' %}
 <section class="content-block">
   <h3>Paiement de la cotisation</h3>
   <p>
@@ -119,8 +120,37 @@
         votre mode de paiement, merci de contacter le trésorier.</small></p>
     </div>
   </div>
-</div>
+
+  <div class="card card-outline-secondary">
+    <div class="card-block">
+      <h4 class="card-title">Carte bancaire</h4>
+      <p class="card-text">
+
+        Vous pouvez directement régler votre cotisation par carte bancaire.
+
+        <form action="{% url 'process-payment' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="membershipID" value="{{object.uid}}">
+          <script
+            src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+            data-key="pk_test_GN1PDAzOZ9YzQrOSNPGFLX5x"
+            data-amount="{% widthratio object.amount 1 100 %}"
+            data-name="Association des anciens élèves"
+            data-description="Cotisation annuelle à l'association"
+            data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+            data-locale="auto"
+            data-zip-code="false"
+            data-currency="eur"
+            data-label="Payer par carte"
+            data-email="{{object.profile.user.email}}">
+          </script>
+        </form>
+      </p>
+    </div>
+  </div>
+  </div>
 </section>
+{% endif %}
 
 </div>
 </div>

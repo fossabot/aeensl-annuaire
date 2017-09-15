@@ -150,9 +150,6 @@ def process_payment_view(request, **kwargs):
     import stripe
     stripe.api_key = settings.STRIPE_SECRET_KEY
 
-    if not request.user.is_authenticated():
-        return redirect("register")
-
     if not request.method == "POST":
         return redirect("/")
 

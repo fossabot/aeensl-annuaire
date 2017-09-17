@@ -2,6 +2,7 @@
 from django.contrib.auth.models import \
     AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.db import models
+from django.utils.text import slugify
 
 from phonenumber_field.modelfields import PhoneNumberField
 from django.core.validators import MinValueValidator
@@ -83,8 +84,9 @@ class Profile(models.Model):
         "Année d'entrée à l'ENS", null=True, blank=False)
 
     STATUS_SCHOOL_CHOICES = (
+        ('inspecteur', 'Élève inspecteur'),
         ('normalien', 'Élève normalien'),
-        ('etudiant', 'Étudiant normalien (anciennement auditeur)')
+        ('etudiant', 'Étudiant normalien (anciennement auditeur)'),
     )
     status_school = models.CharField(
         "Statut à l'école", max_length=30,
@@ -101,14 +103,50 @@ class Profile(models.Model):
         "École d'entrée", max_length=30,
         choices=ENTRANCE_SCHOOL_CHOICES, null=True, blank=False)
 
+
+    ENTRANCE_FIELD_CHOICES = [
+        'Allemand',
+        'Anglais',
+        'Anthropologie',
+        'Arabe',
+        'Biologie',
+        'Chimie',
+        'Chinois',
+        'Cinéma',
+        'Économie',
+        'Espagnol',
+        'Géographie',
+        'Géologie',
+        'Histoire de l’art',
+        'Histoire',
+        'Informatique',
+        'Information / Communication',
+        'Italien',
+        'Lettres classiques',
+        'Lettres modernes',
+        'Mathématiques',
+        'Musique',
+        'Philosophie',
+        'Physique',
+        'Russe',
+        'Sciences cognitives',
+        'Sciences de l’éducation',
+        'Sciences politiques',
+        'Sociologie',
+        'Théâtre',
+    ]
+    ENTRANCE_FIELD_CHOICES = [
+        (slugify(c), c) for c in ENTRANCE_FIELD_CHOICES]
+
     entrance_field = models.CharField(
-        "Discipline d'entrée", max_length=200, null=True, blank=False)
+        "Discipline d'entrée", max_length=200,
+        choices=ENTRANCE_FIELD_CHOICES, null=True, blank=False)
 
     PROFESSIONAL_STATUS_CHOICES = (
         ('active', 'Actif'),
         ('retired', 'Retraité'),
         ('student', 'Étudiant'),
-        ('inactive', 'Sans emploi')
+        ('inactive', 'Demandeur d\'emploi')
     )
     professional_status = models.CharField(
         "Situation actuelle", max_length=30,

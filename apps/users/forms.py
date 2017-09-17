@@ -82,12 +82,6 @@ class AddressForm(forms.ModelForm):
         )
 
 
-# TODO: cache the queryset
-Q_fields = Profile.objects.values("entrance_field").distinct()
-ENTRANCE_CHOICES = [x['entrance_field'].title() for x in Q_fields if x['entrance_field'] is not None]
-ENTRANCE_CHOICES = sorted(ENTRANCE_CHOICES)
-
-
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
@@ -103,10 +97,6 @@ class ProfileForm(forms.ModelForm):
         widget=forms.Select(attrs={'class': 'form-check-inline'}),
         choices=list(Profile.GENDER_CHOICES),
         label='Civilité')
-
-    entrance_field = forms.ChoiceField(
-        choices=zip(ENTRANCE_CHOICES, ENTRANCE_CHOICES),
-        label="Discipline d'entrée")
 
     def __init__(self, *args, **kwargs):
         super(ProfileForm, self).__init__(*args, **kwargs)
@@ -135,9 +125,9 @@ class ProfileForm(forms.ModelForm):
                 'professional_status',
                 HTML(
                     """<div class='alert alert-info' role='alert'>
-                    <h5 class='alert-heading'>Documents supplémentaires</h4>
-                    <p>S’il s’agit de votre première adhésion à l’Association des élèves et anciens élèves, et afin de faciliter les opérations de vérification, nous vous remercions de bien vouloir déposer un document officiel attestant de votre passage à l’ENS (justificatif de scolarité, certificat d’inscription, carte d’étudiant, <i>etc.</i>).
-                    En cas de difficultés, vous pouvez ignorer cette étape. Si nécessaire, le trésorier de l’Association prendra alors votre attache avant de confirmer votre adhésion. Il convient de noter que les opérations de vérification peuvent prendre plus de temps en l’absence de document.</p>
+                    <h5 class='alert-heading'>Justificatif de passage (uniquement en cas de première adhésion)</h4>
+                    <p>S’il s’agit de votre première adhésion à l’Association des élèves et anciens élèves, et afin de faciliter les opérations de vérification, nous vous remercions de bien vouloir déposer un document officiel attestant de votre passage à l’ENS (justificatif de scolarité, certificat d’inscription, carte d’étudiant, <i>etc.</i>).</p>
+                    <p>En cas de difficultés, vous pouvez ignorer cette étape. Si nécessaire, le trésorier de l’Association prendra alors votre attache avant de confirmer votre adhésion. Il convient de noter que les opérations de vérification peuvent prendre plus de temps en l’absence de document.</p>
                     </div>"""),
                 'proof_school',
             )

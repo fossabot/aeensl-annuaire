@@ -111,7 +111,7 @@ class Profile(models.Model):
         ('inactive', 'Sans emploi')
     )
     professional_status = models.CharField(
-        "Situation professionnelle actuelle", max_length=30,
+        "Situation actuelle", max_length=30,
         choices=PROFESSIONAL_STATUS_CHOICES)
 
     proof_school = models.FileField(

@@ -94,10 +94,10 @@ class Profile(models.Model):
 
     ENTRANCE_SCHOOL_CHOICES = (
         ('ens_lyon', 'ENS de Lyon'),
-        ('ens_lsh', 'ENS LSH'),
-        ('fontenay', 'Fontenay-aux-Roses'),
-        ('st_cloud', 'St Cloud'),
-        ('fontenay__st_cloud', 'Fontenay / St Cloud')
+        ('ens_lsh', 'ENS Lettres et Sciences humaines'),
+        ('fontenay', 'ENS de Fontenay-aux-Roses'),
+        ('st_cloud', 'ENS de Saint-Cloud'),
+        ('fontenay__st_cloud', 'ENS de Fontenay-Saint-Cloud')
     )
     entrance_school = models.CharField(
         "École d'entrée", max_length=30,
@@ -326,10 +326,9 @@ class Membership(models.Model):
         retired = self.membership_type == Membership.MEMBERSHIP_TYPE_RETIRED
         youth = self.membership_type == Membership.MEMBERSHIP_TYPE_YOUTH
 
-        # Up to four years of free membership
-        free_membership = self.start_date.year < profile.entrance_year + 4
+        free = self.membership_type == Membership.MEMBERSHIP_TYPE_FREE
 
-        if free_membership:
+        if free:
             return 0
 
         if active:
@@ -391,7 +390,7 @@ class Membership(models.Model):
         (PAYMENT_TYPE_CARD, 'Carte bancaire')
     )
     payment_type = models.CharField(
-        "Méthode de paiment", max_length=30, choices=PAYMENT_TYPE_CHOICES)
+        "Méthode de paiement", max_length=30, choices=PAYMENT_TYPE_CHOICES)
 
     payment_bank = models.CharField(
         "Banque (si applicable)", max_length=100, blank=True)
@@ -421,10 +420,12 @@ class Membership(models.Model):
     MEMBERSHIP_TYPE_ACTIVE = 'active'
     MEMBERSHIP_TYPE_RETIRED = 'retired'
     MEMBERSHIP_TYPE_YOUTH = 'youth'
+    MEMBERSHIP_TYPE_FREE = 'free'
     MEMBERSHIP_TYPE_CHOICES = (
-        (MEMBERSHIP_TYPE_ACTIVE, 'actif'),
-        (MEMBERSHIP_TYPE_RETIRED, 'retraité'),
-        (MEMBERSHIP_TYPE_YOUTH, 'jeune')
+        (MEMBERSHIP_TYPE_ACTIVE, "Actif"),
+        (MEMBERSHIP_TYPE_RETIRED, "Retraité"),
+        (MEMBERSHIP_TYPE_YOUTH, "Jeune (dix dernières promotions"),
+        (MEMBERSHIP_TYPE_FREE, "En cours de scolarité à l'ENS (L3, M1, M2, Agrégation, Césure)")
     )
     membership_type = models.CharField(
         "Type de cotisation", max_length=100,

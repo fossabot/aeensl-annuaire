@@ -102,7 +102,7 @@ class ProfileForm(forms.ModelForm):
     gender = forms.ChoiceField(
         widget=forms.Select(attrs={'class': 'form-check-inline'}),
         choices=list(Profile.GENDER_CHOICES),
-        label='Raison sociale')
+        label='Civilité')
 
     entrance_field = forms.ChoiceField(
         choices=zip(ENTRANCE_CHOICES, ENTRANCE_CHOICES),

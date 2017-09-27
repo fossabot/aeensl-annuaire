@@ -165,9 +165,8 @@ class MembershipForm(forms.ModelForm):
         self.helper.layout = Layout(
             Fieldset(
                 "Montant et réglement",
-                'payment_type',
                 'membership_type',
-
+                Field('payment_type', label="Type de paiement (si applicable)"),
                 Div(
                     Div(InlineRadios('in_couple',
                         template="crispy/radioselect_inline.html"),

@@ -125,8 +125,7 @@
     <div class="card-block">
       <h4 class="card-title">Carte bancaire</h4>
       <p class="card-text">
-
-        Vous pouvez directement régler votre cotisation par carte bancaire.
+        Vous pouvez directement régler votre cotisation par carte bancaire via notre partenaire Stripe.
 
         <form action="{% url 'process-payment' %}" method="POST">
           {% csrf_token %}
@@ -141,10 +140,13 @@
             data-locale="auto"
             data-zip-code="false"
             data-currency="eur"
-            data-label="Payer par carte"
+            data-label="Payer {{ object.amount }} € par carte"
             data-email="{{object.profile.user.email}}">
           </script>
         </form>
+      </p>
+      <p class="card-text">
+        Stripe est une plateforme de paiement sécurisée (certifiée PCI DSS niveau 1) qui vous permet de payer par Mastercard, Visa ou American Express).
       </p>
     </div>
   </div>

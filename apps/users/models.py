@@ -390,7 +390,7 @@ class Membership(models.Model):
         (PAYMENT_TYPE_CARD, 'Carte bancaire')
     )
     payment_type = models.CharField(
-        "Méthode de paiement", max_length=30, choices=PAYMENT_TYPE_CHOICES)
+        "Méthode de paiement", max_length=30, choices=PAYMENT_TYPE_CHOICES, blank=True, null=True)
 
     payment_bank = models.CharField(
         "Banque (si applicable)", max_length=100, blank=True)
@@ -424,7 +424,7 @@ class Membership(models.Model):
     MEMBERSHIP_TYPE_CHOICES = (
         (MEMBERSHIP_TYPE_ACTIVE, "Actif"),
         (MEMBERSHIP_TYPE_RETIRED, "Retraité"),
-        (MEMBERSHIP_TYPE_YOUTH, "Jeune (dix dernières promotions"),
+        (MEMBERSHIP_TYPE_YOUTH, "Jeune (dix dernières promotions)"),
         (MEMBERSHIP_TYPE_FREE, "En cours de scolarité à l'ENS (L3, M1, M2, Agrégation, Césure)")
     )
     membership_type = models.CharField(

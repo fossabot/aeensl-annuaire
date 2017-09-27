@@ -3,7 +3,7 @@ from .models import Membership, Profile, Address
 from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate
-
+from django.utils.translation import ugettext as _
 from django.db.models.fields import BLANK_CHOICE_DASH
 
 from crispy_forms.helper import FormHelper
@@ -120,8 +120,10 @@ class ProfileForm(forms.ModelForm):
                 'Parcours à l\'ENS',
                 'entrance_year',
                 'entrance_field',
-                'entrance_school',
-                'status_school',
+                Div(
+                    Div('entrance_school', css_class="col-sm-6"),
+                    Div('status_school', css_class='col-sm-6'),
+                    css_class='row'),
                 'professional_status',
                 HTML(
                     """<div class='alert alert-info' role='alert'>
@@ -146,17 +148,18 @@ class ProfileAddressForm(MultiModelForm):
 class MembershipForm(forms.ModelForm):
     class Meta:
         model = Membership
-        fields = ['membership_type', 'payment_type', 'in_couple',
-                  'partner_name']
+        # fields = ['membership_type', 'payment_type', 'in_couple',
+        #           'partner_name']
+        fields = ['membership_type', 'payment_type']
 
-        widgets = {
-            'in_couple': forms.RadioSelect
-        }
+        # widgets = {
+        #     'in_couple': forms.RadioSelect
+        # }
 
-    partner_name = forms.ModelChoiceField(
-        queryset=Profile.objects.all(), required=False,
-        widget=autocomplete.ModelSelect2(url='profile-autocomplete')
-    )
+    # partner_name = forms.ModelChoiceField(
+    #     queryset=Profile.objects.all(), required=False,
+    #     widget=autocomplete.ModelSelect2(url='profile-autocomplete')
+    # )
 
     def __init__(self, *args, **kwargs):
         super(MembershipForm, self).__init__(*args, **kwargs)
@@ -167,11 +170,29 @@ class MembershipForm(forms.ModelForm):
                 "Montant et réglement",
                 'membership_type',
                 Field('payment_type', label="Type de paiement (si applicable)"),
-                Div(
-                    Div(InlineRadios('in_couple',
-                        template="crispy/radioselect_inline.html"),
-                        css_class='col-sm-3'),
-                    Div('partner_name', css_class='col-sm-9'),
-                    css_class='row')
+                # Div(
+                #     Div(InlineRadios('in_couple',
+                #         template="crispy/radioselect_inline.html"),
+                #         css_class='col-sm-3'),
+                #     Div('partner_name', css_class='col-sm-9'),
+                #     css_class='row')
             )
         )
+
+    def fields_required(self, fields):
+        """ Used for conditionally marking fields as required. """
+        for field in fields:
+            if not self.cleaned_data.get(field, ''):
+                msg = forms.ValidationError(_("This field is required."))
+                self.add_error(field, msg)
+
+    def clean(self):
+        """
+        Only accept empty payment methods if the memberhip is free.
+        """
+        membership_type = self.cleaned_data.get('membership_type')
+
+        if membership_type != Membership.MEMBERSHIP_TYPE_FREE:
+            self.fields_required(["payment_type"])
+
+        return self.cleaned_data

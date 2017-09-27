@@ -16,14 +16,56 @@
   <div class="progress-bar" role="progressbar" style="width: 100%" aria-valuenow="1" aria-valuemin="0" aria-valuemax="2"></div>
 </div>
 
-<form action="" method="post">{% csrf_token %}
-<table>
-{{ wizard.management_form }}
-{% crispy wizard.form %}
-</table>
-{% if wizard.steps.prev %}
-<button name="wizard_goto_step" type="submit" formnovalidate="formnovalidate" class="btn" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
-{% endif %}
-<input type="submit" class="btn btn-primary" value="{% trans "submit" %}"/>
-</form>
+<div class="row">
+	<div class="col-sm-5">
+	<table class="table">
+		<tbody>
+		<tr>
+		<th></th>
+		<th style="text-align: center;" colspan="2"><strong>Tarifs 2017</strong></th>
+		</tr>
+		<tr>
+		<th></th>
+		<th style="text-align: center;">Membre</th>
+		<th style="text-align: center;">Couple</th>
+		</tr>
+		<tr>
+		<td>Actif</td>
+		<td style="text-align: center;">45 €</td>
+		<td style="text-align: center;">70 €</td>
+		</tr>
+		<tr>
+		<td>Retraité</td>
+		<td style="text-align: center;">40 €</td>
+		<td style="text-align: center;">60 €</td>
+		</tr>
+		<tr>
+		<td>Jeune (dix dernières promotions)</td>
+		<td style="text-align: center;">20 €</td>
+		<td style="text-align: center;">25 €</td>
+		</tr>
+		<tr>
+		<td>Adhésion pendant vos années de scolarité à l’ENS de Lyon</td>
+		<td style="text-align: center;" colspan="2">Gratuit</td>
+		</tr>
+		</tbody>
+	</table>
+
+	<p>Les adhésions en couple sur la plateforme sont pour l'instant en phase de test. Merci de nous contacter directement si vous souhaitez payer par carte bancaire vos adhésions en couple.</p>
+	</div>
+
+	<div class="col-sm-7">
+	<form action="" method="post">{% csrf_token %}
+	<table>
+	{{ wizard.management_form }}
+	{% crispy wizard.form %}
+	</table>
+	{% if wizard.steps.prev %}
+	<button name="wizard_goto_step" type="submit" formnovalidate="formnovalidate" class="btn" value="{{ wizard.steps.prev }}">{% trans "prev step" %}</button>
+	{% endif %}
+	<input type="submit" class="btn btn-primary" value="{% trans "submit" %}"/>
+	</form>
+	</div>
+
+</div>
 {% endblock %}

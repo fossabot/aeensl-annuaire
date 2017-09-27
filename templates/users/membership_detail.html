@@ -15,7 +15,7 @@
     <p> Votre demande a été rejetée. Merci de prendre contact avec le trésorier
       pour plus d'information.</p>
     {% else %}
-    <p> Votre cotisation est en attente de paiement. Une fois le paiement reçu,
+    <p> Votre cotisation est en attente de paiement. Une fois le paiement reçu et votre statut vérifié,
       votre adhésion sera automatiquement acceptée.</p>
     {% endif %}
   </div>
@@ -34,7 +34,7 @@
     </li>
     {% else %}
     <li class="list-group-item disabled">
-      Demande en attente de validation par le trésorier. Nous vérifions que votre cotisation a bien été réglée, ainsi que votre passage à l'école.
+      Demande en attente de validation par le trésorier. Nous vérifions que votre cotisation a bien été réglée, que vous avez bien été inscrit à l'école, ainsi que votre statut.
     </li>
     {% endif %}
   </ul>
@@ -78,7 +78,7 @@
 </table>
 </section>
 
-{% if object.status == 'submitted' %}
+{% if object.status == 'submitted' and object.payment_type %}
 <section class="content-block">
   <h3>Paiement de la cotisation</h3>
   <p>

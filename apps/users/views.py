@@ -135,11 +135,7 @@ class RegistrationWizard(SessionWizardView):
         mb_url = self.request.build_absolute_uri(
             reverse('membership-detail', args=[membership.uid]))
 
-        return render(self.request, 'form_done.html', {
-            'user': u,
-            'cotisation': membership,
-            'url': mb_url
-        })
+        return redirect("membership-detail", membership.uid)
 
 
 class MembershipDetailView(DetailView):

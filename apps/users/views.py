@@ -128,8 +128,9 @@ class RegistrationWizard(SessionWizardView):
         membership.duration = 1  # valid for one year
         membership.save()
 
-        # Send a confirmation email
-        membership.email_user(status="submitted")
+        # Send a confirmation email if the user has to pay
+        if membership.amount > 0:
+            membership.email_user(status="submitted")
 
         mb_url = self.request.build_absolute_uri(
             reverse('membership-detail', args=[membership.uid]))

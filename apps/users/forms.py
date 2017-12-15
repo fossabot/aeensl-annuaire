@@ -87,10 +87,13 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ['gender', 'first_name', 'last_name', 'common_name', 'phone_number',
                   'entrance_year', 'entrance_field', 'entrance_school',
-                  'professional_status', 'status_school', 'proof_school']
+                  'professional_status', 'status_school', 'proof_school',
+                  'annuaire_papier', 'bulletin_papier']
 
         widgets = {
             'phone_number': PhoneNumberInternationalFallbackWidget(),
+            'annuaire_papier': forms.RadioSelect,
+            'bulletin_papier': forms.RadioSelect
         }
 
     gender = forms.ChoiceField(
@@ -132,6 +135,16 @@ class ProfileForm(forms.ModelForm):
                     <p>En cas de difficultés, vous pouvez ignorer cette étape. Si nécessaire, le trésorier de l’Association prendra alors votre attache avant de confirmer votre adhésion. Il convient de noter que les opérations de vérification peuvent prendre plus de temps en l’absence de document.</p>
                     </div>"""),
                 'proof_school',
+            ),
+
+            Fieldset(
+                "Réception de l'annuaire et du bulletin",
+                HTML(
+                    """<p>Vous avez la possibilité de recevoir l'annuaire de
+                    l'association et le bulletin par voie postale ou 
+                    directement par email.</p>"""),
+                'annuaire_papier',
+                'bulletin_papier'
             )
         )
 
@@ -148,18 +161,10 @@ class ProfileAddressForm(MultiModelForm):
 class MembershipForm(forms.ModelForm):
     class Meta:
         model = Membership
-        # fields = ['membership_type', 'payment_type', 'in_couple',
-        #           'partner_name']
-        fields = ['membership_type', 'payment_type']
-
-        # widgets = {
-        #     'in_couple': forms.RadioSelect
-        # }
-
-    # partner_name = forms.ModelChoiceField(
-    #     queryset=Profile.objects.all(), required=False,
-    #     widget=autocomplete.ModelSelect2(url='profile-autocomplete')
-    # )
+        fields = ['membership_type', 'payment_type', 'comments']
+        widgets = {
+            'comments': forms.Textarea(attrs={'rows': 4}),
+        }
 
     def __init__(self, *args, **kwargs):
         super(MembershipForm, self).__init__(*args, **kwargs)
@@ -170,12 +175,7 @@ class MembershipForm(forms.ModelForm):
                 "Montant et réglement",
                 'membership_type',
                 Field('payment_type', label="Type de paiement (si applicable)"),
-                # Div(
-                #     Div(InlineRadios('in_couple',
-                #         template="crispy/radioselect_inline.html"),
-                #         css_class='col-sm-3'),
-                #     Div('partner_name', css_class='col-sm-9'),
-                #     css_class='row')
+                'comments'
             )
         )
 

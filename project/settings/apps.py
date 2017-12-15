@@ -40,7 +40,6 @@ CONTRIB_APPS = [
     'allauth.account',
 
     'import_export',
-    'solo',
     'django.contrib.admin',
 ]
 

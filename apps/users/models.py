@@ -166,10 +166,13 @@ class Profile(models.Model):
 
     do_not_contact = models.BooleanField("Ne pas contacter", default=False)
 
+
+    BOOL_CHOICES = ((True, 'Oui'), (False, 'Non'))
+
     annuaire_papier = models.BooleanField(
-        "Recevoir l'annuaire en papier", default=False)
+        "Recevoir l'annuaire en papier", default=False, choices=BOOL_CHOICES)
     bulletin_papier = models.BooleanField(
-        "Recevoir le bulletin en papier", default=False)
+        "Recevoir le bulletin en papier", default=False, choices=BOOL_CHOICES)
 
     def __str__(self):
         if self.common_name:
@@ -290,7 +293,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
 
     profile = models.OneToOneField(
-        Profile, null=True, verbose_name="Profil", related_name='user')
+        Profile, null=True, verbose_name="Profil", related_name='user',
+        on_delete=models.CASCADE)
 
     @property
     def is_staff(self):
@@ -366,6 +370,9 @@ class Membership(models.Model):
     # Creation and payment information
     created_on = models.DateTimeField(
         "Date de création", auto_now_add=True)
+
+    comments = models.TextField(
+        "Commentaire libre", blank=True, null=True)
 
     # Money transfer
     # --------------

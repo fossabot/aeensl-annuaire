@@ -22,6 +22,7 @@ django_tables2
 django-import-export
 django_extensions
 git+https://github.com/anziem/django_reverse_admin.git
+django-autocomplete-light
 
 # Serving assets
 django-compressor-toolkit

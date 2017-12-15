@@ -4,7 +4,8 @@ from .env import env, ROOT_DIR
 ALLOWED_HOSTS = [
     'localhost', '127.0.0.1', '[::1]',
     'annuaire-dev.herokuapp.com',
-    'adherent.lyon-normalesup.org'
+    'adherent.lyon-normalesup.org',
+    'adherent-dev.lyon-normalesup.org'
 ]
 
 MIDDLEWARE = (

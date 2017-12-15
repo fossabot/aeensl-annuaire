@@ -263,7 +263,8 @@ class Address(models.Model):
 
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
-    type = models.CharField("Type", choices=TYPE_CHOICES, max_length=30)
+    type = models.CharField(
+        "Type", choices=TYPE_CHOICES, max_length=30, default='private_postal')
     line_1 = models.CharField("Ligne 1", max_length=200)
     line_2 = models.CharField("Ligne 2", max_length=200, blank=True)
     postal_code = models.CharField("Code postal", max_length=30)
@@ -440,7 +441,7 @@ class Membership(models.Model):
         default=MEMBERSHIP_TYPE_ACTIVE)
 
     def next_start_date(self):
-        return date(2017, 1, 1)
+        return date(2018, 1, 1)
 
     def is_check(self):
         return self.payment_type == Membership.PAYMENT_TYPE_CHECK

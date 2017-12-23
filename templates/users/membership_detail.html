@@ -132,7 +132,7 @@
           <input type="hidden" name="membershipID" value="{{object.uid}}">
           <script
             src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-            data-key="pk_test_GN1PDAzOZ9YzQrOSNPGFLX5x"
+            data-key="{{STRIPE_PUBLIC_KEY}}"
             data-amount="{% widthratio object.amount 1 100 %}"
             data-name="Association des anciens élèves"
             data-description="Cotisation annuelle à l'association"

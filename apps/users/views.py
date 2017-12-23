@@ -142,6 +142,11 @@ class MembershipDetailView(DetailView):
     slug_field = 'uid'
     queryset = Membership.objects.all()
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['STRIPE_PUBLIC_KEY'] = settings.STRIPE_PUBLIC_KEY
+        return context
+
 
 def process_payment_view(request, **kwargs):
     import stripe

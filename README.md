@@ -1,4 +1,6 @@
 # Annuaire des anciens élèves de l'ENS de Lyon
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcynddl%2Faeensl-annuaire.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcynddl%2Faeensl-annuaire?ref=badge_shield)
+
 
 Prototype d'annuaire pour l'Association des anciens élèves de l'ENS de Lyon (AEENSL). Il permet actuellement de créer et renouveler ses cotisations.
 
@@ -25,3 +27,7 @@ Pour lancer le serveur :
     ./manage.py makemigrations
     ./manage.py migrate
     ./manage.py runserver
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fcynddl%2Faeensl-annuaire.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fcynddl%2Faeensl-annuaire?ref=badge_large)
